@@ -7,8 +7,8 @@ import type { Product, CreateProductDTO, UpdateProductDTO } from "@/lib/types/en
 export const productsApi = createApiResource<Product, CreateProductDTO, UpdateProductDTO>("products");
 
 // Product-specific methods
-export async function getAllProducts(): Promise<Product[]> {
-  return await productsApi.list();
+export async function getAllProducts(page: number, limit: number, search: string | undefined, admin: boolean, paginated: boolean): Promise<Product[]> {
+  return (await productsApi.listWithPagination(page, limit, search, admin, paginated)).data;
 }
 
 export async function getProductById(id: string): Promise<Product> {
@@ -43,7 +43,7 @@ export async function deleteProduct(id: string) {
   return await productsApi.delete(id);
 }
 
-export async function getFeaturedProducts(limit: number = 8): Promise<Product[]> {
-  const allProducts = await productsApi.list();
-  return allProducts.slice(0, limit);
+export async function getFeaturedProducts(page: number, limit: number, search: string | undefined, admin: boolean, paginated: boolean): Promise<Product[]> {
+  const allProducts = await productsApi.listWithPagination(page, limit, search, admin, paginated);
+  return allProducts.data;
 }

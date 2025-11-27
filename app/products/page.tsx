@@ -3,7 +3,7 @@ import { ProductsListClient } from "./_components/products-list-client";
 
 
 export default async function ProductsPage() {
-  const products = await getAllProducts();
+  const products = await getAllProducts(1, 8, undefined, false, true);
   const categories = ["All", "Electronics", "Clothing", "Accessories", "Home", "Sports", "Shoes"];
   
   return <ProductsListClient products={products} categories={categories} />;

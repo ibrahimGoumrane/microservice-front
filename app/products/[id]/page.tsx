@@ -10,7 +10,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const allProducts = await getAllProducts();
+  const allProducts = await getAllProducts(1, 8, undefined, false, true);
   const relatedProducts = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);

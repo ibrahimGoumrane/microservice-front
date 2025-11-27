@@ -33,6 +33,15 @@ export async function getCurrentUser() {
   return await authApi.getResource<AuthResponse["user"]>("me");
 }
 
+export async function validateAdminAccess(): Promise<boolean> {
+  try {
+    const response = await authApi.getResource<{ data: { id: number; name: string; email: string; roles: string } }>("me");
+    return response.data.roles === "ROLE_ADMIN";
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await getCookieStore();
   const token = cookieStore.get("token");

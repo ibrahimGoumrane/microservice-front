@@ -1,32 +1,23 @@
-# API Documentation
+# Frontend API Requirements Documentation
 
-This document outlines all the backend API endpoints that need to be implemented for the e-commerce application.
+This document outlines all API endpoints required by the frontend application. This serves as a specification for the backend team to implement.
 
-## Base URL
+---
 
-```
-http://localhost:8080/api/v1
-```
-
-All endpoints are prefixed with the base URL above.
-
-## Authentication
-
-All authenticated requests must include a Bearer token in the Authorization header:
-
-```
-Authorization: Bearer {token}
-```
-
-Tokens are automatically managed by the frontend and stored in HTTP-only cookies.
+## Table of Contents
+1. [Authentication Endpoints](#authentication-endpoints)
+2. [Product Endpoints](#product-endpoints)
+3. [Order Endpoints](#order-endpoints)
+4. [User Endpoints](#user-endpoints)
+5. [Cart Endpoints](#cart-endpoints)
+6. [Common Response Formats](#common-response-formats)
 
 ---
 
 ## Authentication Endpoints
 
-### POST /auth/login
-
-Login with email and password.
+### 1. Login
+**Endpoint:** `POST /auth/login`
 
 **Request Body:**
 ```json
@@ -39,129 +30,101 @@ Login with email and password.
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
-      "id": "1",
+      "id": 1,
       "name": "John Doe",
       "email": "user@example.com",
-      "role": "user"
+      "roles": "ROLE_USER"
     }
-  }
-}
-```
-
-**Error Response (401 Unauthorized):**
-```json
-{
-  "success": false,
-  "errors": ["Invalid credentials"]
+  },
+  "message": "Login successful"
 }
 ```
 
 ---
 
-### POST /auth/register
-
-Register a new user account.
+### 2. Register
+**Endpoint:** `POST /auth/register`
 
 **Request Body:**
 ```json
 {
   "name": "John Doe",
   "email": "user@example.com",
-  "password": "password123"
+  "password": "password123",
+  "confirmPassword": "password123"
 }
 ```
 
 **Response (201 Created):**
 ```json
 {
-  "success": true,
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
-      "id": "1",
+      "id": 1,
       "name": "John Doe",
       "email": "user@example.com",
-      "role": "user"
+      "roles": "ROLE_USER"
     }
-  }
-}
-```
-
-**Error Response (400 Bad Request):**
-```json
-{
-  "success": false,
-  "errors": {
-    "email": ["Email already exists"]
-  }
+  },
+  "message": "Registration successful"
 }
 ```
 
 ---
 
-### POST /auth/logout
-
-Logout the current user.
+### 3. Get Current User
+**Endpoint:** `GET /auth/me`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
-  "message": "Logged out successfully"
-}
-```
-
----
-
-### GET /auth/me
-
-Get the currently authenticated user.
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
   "data": {
-    "id": "1",
+    "id": 1,
     "name": "John Doe",
     "email": "user@example.com",
-    "role": "user"
-  }
+    "roles": "ROLE_USER"
+  },
+  "message": "User information retrieved successfully"
 }
 ```
 
 ---
 
-### POST /auth/refresh-token
-
-Refresh the authentication token.
+### 4. Logout
+**Endpoint:** `POST /auth/logout`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
+  "message": "Logout successful"
+}
+```
+
+---
+
+### 5. Refresh Token
+**Endpoint:** `POST /auth/refresh-token`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response (200 OK):**
+```json
+{
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
+  },
+  "message": "Token refreshed successfully"
 }
 ```
 
@@ -169,116 +132,79 @@ Authorization: Bearer {token}
 
 ## Product Endpoints
 
-### GET /products/
-
-Get all products (with optional pagination).
+### 1. Get All Products (with Pagination)
+**Endpoint:** `GET /products`
 
 **Query Parameters:**
-- `paginated` (boolean, default: true) - Whether to return paginated results
-- `page` (number, default: 1) - Page number
-- `limit` (number, default: 10) - Items per page
-- `search` (string, optional) - Search query
-- `admin` (boolean, default: false) - Include admin-only fields
-
-**Response (200 OK) - Paginated:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "1",
-      "name": "Wireless Bluetooth Headphones",
-      "description": "Premium noise-cancelling headphones",
-      "price": 199.99,
-      "category": "Electronics",
-      "image": "/images/headphones.jpg",
-      "stock": 45,
-      "rating": 4.5
-    }
-  ],
-  "meta": {
-    "pagination": {
-      "page": 1,
-      "limit": 10,
-      "total": 100,
-      "totalPages": 10
-    }
-  }
-}
-```
-
-**Response (200 OK) - Non-paginated:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "1",
-      "name": "Wireless Bluetooth Headphones",
-      "description": "Premium noise-cancelling headphones",
-      "price": 199.99,
-      "category": "Electronics",
-      "image": "/images/headphones.jpg",
-      "stock": 45,
-      "rating": 4.5
-    }
-  ]
-}
-```
-
----
-
-### GET /products/{id}/
-
-Get a single product by ID.
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Items per page (default: 10)
+- `search` (string, optional): Search query
+- `admin` (boolean, optional): Include admin-only data
+- `paginated` (boolean, optional): Enable pagination
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "1",
-    "name": "Wireless Bluetooth Headphones",
-    "description": "Premium noise-cancelling headphones",
-    "price": 199.99,
-    "category": "Electronics",
-    "image": "/images/headphones.jpg",
-    "stock": 45,
-    "rating": 4.5,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+  "data": [
+    {
+      "id": "prod-1",
+      "name": "Wireless Headphones",
+      "description": "High-quality wireless headphones with noise cancellation",
+      "price": 99.99,
+      "category": "Electronics",
+      "stock": 50,
+      "image": "/images/headphones.jpg",
+      "rating": 4.5
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 10,
+    "totalItems": 100,
+    "itemsPerPage": 10
   }
-}
-```
-
-**Error Response (404 Not Found):**
-```json
-{
-  "success": false,
-  "errors": ["Product not found"]
 }
 ```
 
 ---
 
-### POST /products/
+### 2. Get Product by ID
+**Endpoint:** `GET /products/{id}`
 
-Create a new product (Admin only).
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "prod-1",
+    "name": "Wireless Headphones",
+    "description": "High-quality wireless headphones with noise cancellation",
+    "price": 99.99,
+    "category": "Electronics",
+    "stock": 50,
+    "image": "/images/headphones.jpg",
+    "rating": 4.5
+  }
+}
+```
+
+---
+
+### 3. Create Product (Admin Only)
+**Endpoint:** `POST /products`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Request Body:**
 ```json
 {
-  "name": "Wireless Bluetooth Headphones",
-  "description": "Premium noise-cancelling headphones",
-  "price": 199.99,
+  "name": "Wireless Headphones",
+  "description": "High-quality wireless headphones",
+  "price": 99.99,
   "category": "Electronics",
+  "stock": 50,
   "image": "/images/headphones.jpg",
-  "stock": 45,
   "rating": 4.5
 }
 ```
@@ -286,274 +212,97 @@ Authorization: Bearer {token}
 **Response (201 Created):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "1",
-    "name": "Wireless Bluetooth Headphones",
-    "description": "Premium noise-cancelling headphones",
-    "price": 199.99,
+    "id": "prod-1",
+    "name": "Wireless Headphones",
+    "description": "High-quality wireless headphones",
+    "price": 99.99,
     "category": "Electronics",
+    "stock": 50,
     "image": "/images/headphones.jpg",
-    "stock": 45,
-    "rating": 4.5,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
+    "rating": 4.5
+  },
+  "message": "Product created successfully"
 }
 ```
 
 ---
 
-### PUT /products/{id}/
-
-Update an existing product (Admin only).
+### 4. Update Product (Admin Only)
+**Endpoint:** `PUT /products/{id}`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Request Body:**
 ```json
 {
   "name": "Updated Product Name",
-  "price": 249.99,
-  "stock": 30
+  "price": 89.99,
+  "stock": 75
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "1",
+    "id": "prod-1",
     "name": "Updated Product Name",
-    "description": "Premium noise-cancelling headphones",
-    "price": 249.99,
+    "description": "High-quality wireless headphones",
+    "price": 89.99,
     "category": "Electronics",
+    "stock": 75,
     "image": "/images/headphones.jpg",
-    "stock": 30,
-    "rating": 4.5,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-02T00:00:00Z"
-  }
+    "rating": 4.5
+  },
+  "message": "Product updated successfully"
 }
 ```
 
 ---
 
-### DELETE /products/{id}/
-
-Delete a product (Admin only).
+### 5. Delete Product (Admin Only)
+**Endpoint:** `DELETE /products/{id}`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Response (204 No Content)**
 
 ---
 
-## Cart Endpoints
-
-### GET /cart/current/
-
-Get the current user's cart.
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "cart-1",
-    "userId": "1",
-    "items": [
-      {
-        "product": {
-          "id": "1",
-          "name": "Wireless Bluetooth Headphones",
-          "description": "Premium noise-cancelling headphones",
-          "price": 199.99,
-          "category": "Electronics",
-          "image": "/images/headphones.jpg",
-          "stock": 45,
-          "rating": 4.5
-        },
-        "quantity": 2
-      }
-    ],
-    "total": 399.98,
-    "itemCount": 2,
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
----
-
-### POST /cart/add/
-
-Add an item to the cart.
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Request Body:**
-```json
-{
-  "productId": "1",
-  "quantity": 2
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "cart-1",
-    "userId": "1",
-    "items": [...],
-    "total": 399.98,
-    "itemCount": 2,
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
----
-
-### POST /cart/update/
-
-Update cart item quantity.
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Request Body:**
-```json
-{
-  "productId": "1",
-  "quantity": 3
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "cart-1",
-    "userId": "1",
-    "items": [...],
-    "total": 599.97,
-    "itemCount": 3,
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
----
-
-### DELETE /cart/items/{productId}/
-
-Remove an item from the cart.
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "cart-1",
-    "userId": "1",
-    "items": [],
-    "total": 0,
-    "itemCount": 0,
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
----
-
-### DELETE /cart/clear/
-
-Clear all items from the cart.
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "cart-1",
-    "userId": "1",
-    "items": [],
-    "total": 0,
-    "itemCount": 0,
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
----
-
 ## Order Endpoints
 
-### GET /orders/
-
-Get all orders for the current user.
+### 1. Get All Orders (Admin Only)
+**Endpoint:** `GET /orders`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Query Parameters:**
-- `paginated` (boolean, default: true)
-- `page` (number, default: 1)
-- `limit` (number, default: 10)
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": [
     {
-      "id": "ORD-1234567890",
-      "userId": "1",
+      "id": "order-1",
+      "userId": 1,
       "items": [
         {
           "product": {
-            "id": "1",
-            "name": "Wireless Bluetooth Headphones",
-            "price": 199.99,
-            "image": "/images/headphones.jpg"
+            "id": "prod-1",
+            "name": "Wireless Headphones",
+            "price": 99.99,
+            "image": "/images/headphones.jpg",
+            "category": "Electronics"
           },
           "quantity": 2
         }
       ],
-      "total": 399.98,
+      "total": 199.98,
       "status": "pending",
       "shippingAddress": {
         "fullName": "John Doe",
@@ -563,8 +312,7 @@ Authorization: Bearer {token}
         "zipCode": "10001",
         "country": "USA"
       },
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
+      "createdAt": "2025-11-27T10:30:00Z"
     }
   ]
 }
@@ -572,46 +320,87 @@ Authorization: Bearer {token}
 
 ---
 
-### GET /orders/{id}/
-
-Get a single order by ID.
+### 2. Get Order by ID
+**Endpoint:** `GET /orders/{id}`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "ORD-1234567890",
-    "userId": "1",
-    "items": [...],
-    "total": 399.98,
+    "id": "order-1",
+    "userId": 1,
+    "items": [
+      {
+        "product": {
+          "id": "prod-1",
+          "name": "Wireless Headphones",
+          "price": 99.99,
+          "image": "/images/headphones.jpg",
+          "category": "Electronics"
+        },
+        "quantity": 2
+      }
+    ],
+    "total": 199.98,
     "status": "pending",
-    "shippingAddress": {...},
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+    "shippingAddress": {
+      "fullName": "John Doe",
+      "street": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "country": "USA"
+    },
+    "createdAt": "2025-11-27T10:30:00Z"
   }
 }
 ```
 
 ---
 
-### POST /orders/
-
-Create a new order (place order).
+### 3. Get User Orders
+**Endpoint:** `GET /orders/user/{userId}`
 
 **Headers:**
+- `Authorization: Bearer <token>`
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "order-1",
+      "userId": 1,
+      "items": [...],
+      "total": 199.98,
+      "status": "pending",
+      "shippingAddress": {...},
+      "createdAt": "2025-11-27T10:30:00Z"
+    }
+  ]
+}
 ```
-Authorization: Bearer {token}
-```
+
+---
+
+### 4. Create Order
+**Endpoint:** `POST /orders`
+
+**Headers:**
+- `Authorization: Bearer <token>`
 
 **Request Body:**
 ```json
 {
+  "items": [
+    {
+      "productId": "prod-1",
+      "quantity": 2
+    }
+  ],
   "shippingAddress": {
     "fullName": "John Doe",
     "street": "123 Main St",
@@ -626,30 +415,27 @@ Authorization: Bearer {token}
 **Response (201 Created):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "ORD-1234567890",
-    "userId": "1",
+    "id": "order-1",
+    "userId": 1,
     "items": [...],
-    "total": 399.98,
+    "total": 199.98,
     "status": "pending",
     "shippingAddress": {...},
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
+    "createdAt": "2025-11-27T10:30:00Z"
+  },
+  "message": "Order created successfully"
 }
 ```
 
 ---
 
-### PUT /orders/{id}/
-
-Update an order (Admin only - typically for status updates).
+### 5. Update Order Status (Admin Only)
+**Endpoint:** `PUT /orders/{id}`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Request Body:**
 ```json
@@ -658,39 +444,22 @@ Authorization: Bearer {token}
 }
 ```
 
+**Valid Status Values:**
+- `pending`
+- `processing`
+- `shipped`
+- `delivered`
+- `cancelled`
+
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "ORD-1234567890",
-    "userId": "1",
-    "items": [...],
-    "total": 399.98,
+    "id": "order-1",
     "status": "shipped",
-    "shippingAddress": {...},
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-02T00:00:00Z"
-  }
-}
-```
-
----
-
-### GET /orders/user/{userId}/
-
-Get all orders for a specific user (Admin only).
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": [...]
+    ...
+  },
+  "message": "Order status updated successfully"
 }
 ```
 
@@ -698,32 +467,22 @@ Authorization: Bearer {token}
 
 ## User Endpoints
 
-### GET /users/
-
-Get all users (Admin only).
+### 1. Get All Users (Admin Only)
+**Endpoint:** `GET /users`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Query Parameters:**
-- `paginated` (boolean, default: true)
-- `page` (number, default: 1)
-- `limit` (number, default: 10)
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": [
     {
-      "id": "1",
+      "id": 1,
       "name": "John Doe",
-      "email": "user@example.com",
-      "role": "user",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
+      "email": "john@example.com",
+      "role": "user"
     }
   ]
 }
@@ -731,40 +490,65 @@ Authorization: Bearer {token}
 
 ---
 
-### GET /users/{id}/
-
-Get a single user by ID (Admin only).
+### 2. Get User by ID (Admin Only)
+**Endpoint:** `GET /users/{id}`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "1",
+    "id": 1,
     "name": "John Doe",
-    "email": "user@example.com",
-    "role": "user",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+    "email": "john@example.com",
+    "role": "user"
   }
 }
 ```
 
 ---
 
-### PUT /users/{id}/
-
-Update a user (Admin only).
+### 3. Create User (Admin Only)
+**Endpoint:** `POST /users`
 
 **Headers:**
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
+
+**Request Body:**
+```json
+{
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "password": "password123",
+  "role": "user"
+}
 ```
-Authorization: Bearer {token}
+
+**Response (201 Created):**
+```json
+{
+  "data": {
+    "id": 2,
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "role": "user"
+  },
+  "message": "User created successfully"
+}
 ```
+
+---
+
+### 4. Update User (Admin Only)
+**Endpoint:** `PUT /users/{id}`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Request Body:**
 ```json
@@ -777,97 +561,255 @@ Authorization: Bearer {token}
 **Response (200 OK):**
 ```json
 {
-  "success": true,
   "data": {
-    "id": "1",
+    "id": 2,
     "name": "Jane Doe",
-    "email": "user@example.com",
-    "role": "admin",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-02T00:00:00Z"
-  }
+    "email": "jane@example.com",
+    "role": "admin"
+  },
+  "message": "User updated successfully"
 }
 ```
 
 ---
 
-### DELETE /users/{id}/
-
-Delete a user (Admin only).
+### 5. Delete User (Admin Only)
+**Endpoint:** `DELETE /users/{id}`
 
 **Headers:**
-```
-Authorization: Bearer {token}
-```
+- `Authorization: Bearer <token>`
+- User must have `ROLE_ADMIN`
 
 **Response (204 No Content)**
 
 ---
 
-## Error Responses
+## Cart Endpoints
 
-All endpoints may return the following error responses:
+### 1. Get Current User's Cart
+**Endpoint:** `GET /cart/current`
 
-### 400 Bad Request
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response (200 OK):**
 ```json
 {
-  "success": false,
-  "errors": {
-    "field_name": ["Error message"]
+  "data": {
+    "id": "cart-1",
+    "userId": 1,
+    "items": [
+      {
+        "product": {
+          "id": "prod-1",
+          "name": "Wireless Headphones",
+          "price": 99.99,
+          "image": "/images/headphones.jpg"
+        },
+        "quantity": 2
+      }
+    ],
+    "total": 199.98,
+    "itemCount": 2
   }
-}
-```
-
-### 401 Unauthorized
-```json
-{
-  "success": false,
-  "errors": ["Unauthorized"]
-}
-```
-
-### 403 Forbidden
-```json
-{
-  "success": false,
-  "errors": ["Forbidden - Admin access required"]
-}
-```
-
-### 404 Not Found
-```json
-{
-  "success": false,
-  "errors": ["Resource not found"]
-}
-```
-
-### 422 Unprocessable Entity
-```json
-{
-  "success": false,
-  "errors": {
-    "field_name": ["Validation error message"]
-  }
-}
-```
-
-### 500 Internal Server Error
-```json
-{
-  "success": false,
-  "errors": ["Internal server error"]
 }
 ```
 
 ---
 
-## Notes
+### 2. Add Item to Cart
+**Endpoint:** `POST /cart/add`
 
-1. **Authentication**: All endpoints except `/auth/login` and `/auth/register` require authentication.
-2. **Admin Endpoints**: Endpoints marked as "Admin only" require the user to have the `admin` role.
-3. **Pagination**: When `paginated=false`, the response will not include the `meta` field.
-4. **Timestamps**: All timestamps are in ISO 8601 format (UTC).
-5. **IDs**: All IDs are strings for flexibility.
-6. **Status Values**: Order status can be: `pending`, `processing`, `shipped`, `delivered`, or `cancelled`.
-7. **User Roles**: User roles can be: `user` or `admin`.
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "productId": "prod-1",
+  "quantity": 2
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "cart-1",
+    "userId": 1,
+    "items": [...],
+    "total": 199.98,
+    "itemCount": 2
+  },
+  "message": "Item added to cart successfully"
+}
+```
+
+---
+
+### 3. Update Cart Item
+**Endpoint:** `POST /cart/update`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "productId": "prod-1",
+  "quantity": 3
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "cart-1",
+    "userId": 1,
+    "items": [...],
+    "total": 299.97,
+    "itemCount": 3
+  },
+  "message": "Cart item updated successfully"
+}
+```
+
+---
+
+### 4. Remove Item from Cart
+**Endpoint:** `DELETE /cart/items/{productId}`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "cart-1",
+    "userId": 1,
+    "items": [],
+    "total": 0,
+    "itemCount": 0
+  },
+  "message": "Item removed from cart successfully"
+}
+```
+
+---
+
+### 5. Clear Cart
+**Endpoint:** `DELETE /cart/clear`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "cart-1",
+    "userId": 1,
+    "items": [],
+    "total": 0,
+    "itemCount": 0
+  },
+  "message": "Cart cleared successfully"
+}
+```
+
+---
+
+## Common Response Formats
+
+### Success Response
+```json
+{
+  "data": { ... },
+  "message": "Operation successful"
+}
+```
+
+### Error Response
+```json
+{
+  "errors": ["Error message 1", "Error message 2"],
+  "message": "Operation failed"
+}
+```
+
+### Validation Error Response
+```json
+{
+  "errors": {
+    "email": ["Email is required", "Email must be valid"],
+    "password": ["Password must be at least 8 characters"]
+  },
+  "message": "Validation failed"
+}
+```
+
+---
+
+## Authentication & Authorization
+
+### Headers
+All authenticated endpoints require:
+```
+Authorization: Bearer <jwt_token>
+```
+
+### Roles
+- `ROLE_USER`: Regular user access
+- `ROLE_ADMIN`: Administrator access (required for admin endpoints)
+
+### Token Management
+- Tokens are returned in the `data.token` field on login/register
+- Tokens should be stored securely (httpOnly cookies recommended)
+- Tokens expire after 7 days
+- Use `/auth/refresh-token` to refresh expired tokens
+
+---
+
+## HTTP Status Codes
+
+- `200 OK`: Request successful
+- `201 Created`: Resource created successfully
+- `204 No Content`: Request successful, no content to return
+- `400 Bad Request`: Invalid request data
+- `401 Unauthorized`: Authentication required or token invalid
+- `403 Forbidden`: Insufficient permissions
+- `404 Not Found`: Resource not found
+- `409 Conflict`: Resource conflict (e.g., duplicate email)
+- `422 Unprocessable Entity`: Validation error
+- `500 Internal Server Error`: Server error
+
+---
+
+## Notes for Backend Team
+
+1. **CORS**: Enable CORS for the frontend domain
+2. **Rate Limiting**: Implement rate limiting on authentication endpoints
+3. **Pagination**: Default pagination should be 10 items per page
+4. **Search**: Search should be case-insensitive and match partial strings
+5. **Timestamps**: All timestamps should be in ISO 8601 format (UTC)
+6. **IDs**: Product and order IDs can be strings or numbers
+7. **Image URLs**: Return full URLs or relative paths that the frontend can resolve
+8. **Validation**: Validate all input data and return detailed error messages
+9. **Token Expiry**: JWT tokens should expire after 7 days
+10. **Admin Middleware**: Protect admin endpoints with role-based middleware
+
+---
+
+## Summary
+
+**Total Endpoints: 28**
+
+- Authentication: 5 endpoints
+- Products: 5 endpoints
+- Orders: 5 endpoints
+- Users: 5 endpoints
+- Cart: 5 endpoints
+
+All endpoints follow RESTful conventions and return consistent JSON responses.
