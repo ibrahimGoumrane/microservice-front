@@ -1,18 +1,18 @@
 // Pagination metadata interface
 export interface PaginationMeta {
   page: number;
-  limit: number;
-  total: number;
+  pageSize: number;
   totalPages: number;
+  totalItems: number;
 }
 
 // Generic response wrapper with pagination
 export interface ApiResponse<T> {
   success: boolean;
-  data: T | null;
+  code: number;
   message?: string;
-  errors?: string[] | null;
-  meta?: {
+  data: T;
+  metadata?: {
     pagination?: PaginationMeta;
   };
 }
@@ -20,10 +20,10 @@ export interface ApiResponse<T> {
 // Paginated list response type
 export interface PaginatedResponse<T> {
   success: boolean;
-  data: T[];
+  code: number;
   message?: string;
-  errors?: string[] | null;
-  meta: {
-    pagination: PaginationMeta;
+  data: T[];
+  metadata?: {
+    pagination?: PaginationMeta;
   };
 }

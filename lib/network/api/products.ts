@@ -1,49 +1,108 @@
 "use server";
 
 import { createApiResource } from "../utils/base";
-import type { Product, CreateProductDTO, UpdateProductDTO } from "@/lib/types/entities/product";
+import type {
+  Product,
+  CreateProductDTO,
+  UpdateProductDTO,
+} from "@/lib/types/entities/product";
+import {
+  ApiResponse,
+  PaginatedResponse,
+} from "@/lib/types/subTypes/commonTypes";
 
-// Create the Products API resource
-export const productsApi = createApiResource<Product, CreateProductDTO, UpdateProductDTO>("products");
+// Create the Products API resource - base path is /api/v1/products
+export const productsApi = createApiResource<
+  Product,
+  CreateProductDTO,
+  UpdateProductDTO
+>("api/v1/products", true);
 
 // Product-specific methods
-export async function getAllProducts(page: number, limit: number, search: string | undefined, admin: boolean, paginated: boolean): Promise<Product[]> {
-  return (await productsApi.listWithPagination(page, limit, search, admin, paginated)).data;
+export async function getAllProducts(
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+  paginated: boolean = true
+): Promise<Product[]> {
+  // GET /api/v1/products?page=1&limit=10&search=query&paginated=true
+  const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
+
+  if (!paginated) {
+    // When pagination is disabled, return array directly
+    return await productsApi.getResource<Product[]>(
+      `?page=${page}&limit=${limit}${searchParam}&paginated=${paginated}`
+    );
+  }
+
+  // When paginated, get the response and extract data
+  const response = await productsApi.getResource<PaginatedResponse<Product>>(
+    `?page=${page}&limit=${limit}${searchParam}&paginated=${paginated}`
+  );
+  return response.data;
 }
 
-export async function getProductById(id: string): Promise<Product> {
+export async function getProductById(id: number): Promise<Product> {
+  // GET /api/v1/products/{id}
   return await productsApi.get(id);
 }
 
-export async function getProductsByCategory(category: string): Promise<Product[]> {
-  const allProducts = await productsApi.list();
-  return allProducts.filter((p) => p.category === category);
-}
-
-export async function searchProducts(query: string): Promise<Product[]> {
-  const allProducts = await productsApi.list();
-  const lowerQuery = query.toLowerCase();
-  return allProducts.filter(
-    (p) =>
-      p.name.toLowerCase().includes(lowerQuery) ||
-      p.description.toLowerCase().includes(lowerQuery) ||
-      p.category.toLowerCase().includes(lowerQuery)
+export async function getProductsByCategory(
+  category: string
+): Promise<Product[]> {
+  // GET /api/v1/products/category/{category}
+  const response = await productsApi.getResource<Product[]>(
+    `category/${category}`
   );
+  return response;
 }
 
-export async function createProduct(data: CreateProductDTO) {
+export async function searchProducts(name: string): Promise<Product[]> {
+  // GET /api/v1/products/search?name=query
+  const response = await productsApi.getResource<Product[]>(
+    `search?name=${encodeURIComponent(name)}`
+  );
+  return response;
+}
+
+export async function createProduct(
+  data: CreateProductDTO
+): Promise<ApiResponse<Product>> {
+  // POST /api/v1/products (multipart/form-data)
   return await productsApi.create(data);
 }
 
-export async function updateProduct(id: string, data: UpdateProductDTO) {
+export async function updateProduct(
+  id: number,
+  data: UpdateProductDTO
+): Promise<ApiResponse<Product>> {
+  // PUT /api/v1/products/{id} (multipart/form-data)
   return await productsApi.update(id, data);
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: number): Promise<ApiResponse<null>> {
+  // DELETE /api/v1/products/{id}
   return await productsApi.delete(id);
 }
 
-export async function getFeaturedProducts(page: number, limit: number, search: string | undefined, admin: boolean, paginated: boolean): Promise<Product[]> {
-  const allProducts = await productsApi.listWithPagination(page, limit, search, admin, paginated);
-  return allProducts.data;
+export async function reserveStock(
+  id: number,
+  quantity: number
+): Promise<ApiResponse<any>> {
+  // POST /api/v1/products/{id}/reserve?quantity=2
+  return await productsApi.postResource<any, {}>(
+    `${id}/reserve?quantity=${quantity}`,
+    {}
+  );
+}
+
+export async function releaseStock(
+  id: number,
+  quantity: number
+): Promise<ApiResponse<null>> {
+  // POST /api/v1/products/{id}/release?quantity=2
+  return await productsApi.postResource<null, {}>(
+    `${id}/release?quantity=${quantity}`,
+    {}
+  );
 }

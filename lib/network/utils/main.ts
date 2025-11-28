@@ -233,16 +233,15 @@ export async function fetchData<T>(
   if (
     response.ok &&
     typeof input === "string" &&
-    (input.startsWith("/auth/login") ||
-      input.startsWith("/auth/logout/") ||
-      input.startsWith("/auth/refresh-token") ||
-      input.startsWith("/auth/verification-code/validate"))
+    (input.includes("/api/v1/auth/login") ||
+      input.includes("/api/v1/auth/register") ||
+      input.includes("/api/v1/auth/refresh-token"))
   ) {
     const responseBody = await response.clone().json();
 
-    // ✅ Extract and store the token manually
+    // ✅ Extract and store the token manually from microservices API response
     const token = responseBody?.data?.token;
-    const userType = responseBody?.data?.utilisateur?.roleutilisateur;
+    const userRoles = responseBody?.data?.user?.roles;
     if (token) {
       cookieStore.set("token", token, {
         path: "/",
@@ -255,8 +254,8 @@ export async function fetchData<T>(
     } else {
       cookieStore.delete("token");
     }
-    if (userType) {
-      cookieStore.set("userType", userType, {
+    if (userRoles) {
+      cookieStore.set("userType", userRoles, {
         path: "/",
         httpOnly: false,
         secure: isSecureContext(), // Dynamic based on environment and protocol

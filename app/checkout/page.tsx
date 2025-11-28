@@ -1,20 +1,26 @@
 import { CheckoutForm } from "./_components/checkout-form";
+import { HeaderWrapper } from "@/components/header-wrapper";
 import { getCart } from "@/lib/network/api/cart";
 import { redirect } from "next/navigation";
-import { isAuthenticated } from "@/lib/network/api/auth";
+import { getCurrentUser } from "@/lib/network/api/auth";
 
 export default async function CheckoutPage() {
-  const authenticated = await isAuthenticated();
-  
-  if (!authenticated) {
+  const user = await getCurrentUser();
+  const isAuthenticated = !!user.id;
+  if (!isAuthenticated) {
     redirect("/login");
   }
 
-  const cartData = await getCart();
-  
+  const cartData = await getCart(user.id);
+
   if (!cartData || cartData.items.length === 0) {
     redirect("/cart");
   }
 
-  return <CheckoutForm cart={cartData.items} cartTotal={cartData.total} />;
+  return (
+    <div className="min-h-screen">
+      <HeaderWrapper />
+      <CheckoutForm cart={cartData.items} cartTotal={cartData.total} />
+    </div>
+  );
 }

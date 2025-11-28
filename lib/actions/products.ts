@@ -11,24 +11,30 @@ const createProductSchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.number().positive("Price must be positive"),
   category: z.string().min(1, "Category is required"),
-  image: z.string().url("Invalid image URL"),
-  stock: z.number().int().nonnegative("Stock must be non-negative"),
+  image: z.instanceof(File, { message: "Image file is required" }),
+  stockQuantity: z.number().int().nonnegative("Stock must be non-negative"),
+  active: z.boolean().default(true),
   rating: z.number().min(0).max(5).optional(),
 });
 
 const updateProductSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z.string().min(1, "Name is required").optional(),
   description: z.string().min(1, "Description is required").optional(),
   price: z.number().positive("Price must be positive").optional(),
   category: z.string().min(1, "Category is required").optional(),
-  image: z.string().url("Invalid image URL").optional(),
-  stock: z.number().int().nonnegative("Stock must be non-negative").optional(),
+  image: z.instanceof(File).optional(),
+  stockQuantity: z
+    .number()
+    .int()
+    .nonnegative("Stock must be non-negative")
+    .optional(),
+  active: z.boolean().optional(),
   rating: z.number().min(0).max(5).optional(),
 });
 
 const deleteProductSchema = z.object({
-  id: z.string(),
+  id: z.number(),
 });
 
 // Server Actions

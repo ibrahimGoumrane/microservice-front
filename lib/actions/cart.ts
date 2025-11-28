@@ -7,17 +7,20 @@ import { revalidatePath } from "next/cache";
 
 // Validation schemas
 const addToCartSchema = z.object({
-  productId: z.string().min(1, "Product ID is required"),
+  userId: z.number().positive("User ID is required"),
+  productId: z.number().positive("Product ID is required"),
   quantity: z.number().int().positive("Quantity must be positive"),
 });
 
 const updateCartItemSchema = z.object({
-  productId: z.string().min(1, "Product ID is required"),
+  userId: z.number().positive("User ID is required"),
+  productId: z.number().positive("Product ID is required"),
   quantity: z.number().int().nonnegative("Quantity must be non-negative"),
 });
 
 const removeFromCartSchema = z.object({
-  productId: z.string().min(1, "Product ID is required"),
+  userId: z.number().positive("User ID is required"),
+  productId: z.number().positive("Product ID is required"),
 });
 
 // Server Actions
@@ -27,7 +30,8 @@ export async function addToCartAction(
 ): Promise<State> {
   try {
     const data = {
-      productId: formData.get("productId") as string,
+      userId: Number(formData.get("userId")),
+      productId: Number(formData.get("productId")),
       quantity: Number(formData.get("quantity")),
     };
 
@@ -62,7 +66,8 @@ export async function updateCartItemAction(
 ): Promise<State> {
   try {
     const data = {
-      productId: formData.get("productId") as string,
+      userId: Number(formData.get("userId")),
+      productId: Number(formData.get("productId")),
       quantity: Number(formData.get("quantity")),
     };
 
@@ -95,9 +100,12 @@ export async function removeFromCartAction(
   formData: FormData
 ): Promise<State> {
   try {
-    const productId = formData.get("productId") as string;
+    const data = {
+      userId: Number(formData.get("userId")),
+      productId: Number(formData.get("productId")),
+    };
 
-    const parsed = removeFromCartSchema.safeParse({ productId });
+    const parsed = removeFromCartSchema.safeParse(data);
     if (!parsed.success) {
       return {
         success: false,
@@ -105,7 +113,10 @@ export async function removeFromCartAction(
       };
     }
 
-    const response = await cartApi.removeFromCart(productId);
+    const response = await cartApi.removeFromCart(
+      parsed.data.productId,
+      parsed.data.userId
+    );
     revalidatePath("/cart");
 
     return {
@@ -126,7 +137,16 @@ export async function clearCartAction(
   formData: FormData
 ): Promise<State> {
   try {
-    const response = await cartApi.clearCart();
+    const userId = Number(formData.get("userId"));
+
+    if (!userId) {
+      return {
+        success: false,
+        errors: { userId: ["User ID is required"] },
+      };
+    }
+
+    const response = await cartApi.clearCart(userId);
     revalidatePath("/cart");
 
     return {

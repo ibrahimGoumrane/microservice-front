@@ -1,34 +1,54 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import Link from "next/link"
-import { useStore } from "@/lib/store-context"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ShoppingCart, User, LogOut, Package, LayoutDashboard, Search, Menu } from "lucide-react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+} from "@/components/ui/dropdown-menu";
+import {
+  ShoppingCart,
+  User,
+  LogOut,
+  Package,
+  LayoutDashboard,
+  Search,
+  Menu,
+} from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { logout as logoutUser } from "@/lib/network/api/auth";
+import type { User as UserType } from "@/lib/types/main";
 
-export function Header() {
-  const { user, logout, cartCount, isAuthenticated } = useStore()
-  const [searchQuery, setSearchQuery] = useState("")
-  const router = useRouter()
+interface HeaderProps {
+  user: UserType | null;
+  cartCount: number;
+  isAuthenticated: boolean;
+}
+
+export function Header({ user, cartCount, isAuthenticated }: HeaderProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    router.push("/login");
+    router.refresh();
+  };
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
     }
-  }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -36,7 +56,9 @@ export function Header() {
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">S</span>
+              <span className="text-lg font-bold text-primary-foreground">
+                S
+              </span>
             </div>
             <span className="text-xl font-bold">ShopHub</span>
           </Link>
@@ -48,7 +70,7 @@ export function Header() {
             >
               Products
             </Link>
-            {isAuthenticated && user?.role === "admin" && (
+            {isAuthenticated && user?.roles === "ROLE_ADMIN" && (
               <Link
                 href="/admin"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -59,7 +81,10 @@ export function Header() {
           </nav>
         </div>
 
-        <form onSubmit={handleSearch} className="hidden flex-1 max-w-md px-8 md:flex">
+        <form
+          onSubmit={handleSearch}
+          className="hidden flex-1 max-w-md px-8 md:flex"
+        >
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -104,7 +129,7 @@ export function Header() {
                     My Orders
                   </Link>
                 </DropdownMenuItem>
-                {user?.role === "admin" && (
+                {user?.roles === "ROLE_ADMIN" && (
                   <DropdownMenuItem asChild>
                     <Link href="/admin" className="cursor-pointer">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -113,7 +138,10 @@ export function Header() {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-destructive"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
@@ -154,7 +182,7 @@ export function Header() {
                 <Link href="/products" className="text-lg font-medium">
                   Products
                 </Link>
-                {isAuthenticated && user?.role === "admin" && (
+                {isAuthenticated && user?.roles === "ROLE_ADMIN" && (
                   <Link href="/admin" className="text-lg font-medium">
                     Admin
                   </Link>
@@ -175,5 +203,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -4,36 +4,39 @@ import type { Product } from "./product";
 export interface CartItem {
   product: Product;
   quantity: number;
+  subtotal: number;
 }
 
 export interface Cart {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
   items: CartItem[];
   total: number;
-  updatedAt: string;
+  itemCount: number;
 }
 
 // DTOs for Cart operations
 export interface AddToCartDTO {
-  productId: string;
+  userId: number;
+  productId: number;
   quantity: number;
 }
 
 export interface UpdateCartItemDTO {
-  productId: string;
+  userId: number;
+  productId: number;
   quantity: number;
 }
 
 export interface RemoveFromCartDTO {
-  productId: string;
+  userId: number;
+  productId: number;
 }
 
 export interface CartResponse {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
   items: CartItem[];
   total: number;
   itemCount: number;
-  updatedAt: string;
 }

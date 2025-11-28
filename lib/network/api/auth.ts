@@ -1,42 +1,60 @@
 "use server";
 
 import { createApiResource } from "../utils/base";
-import type { LoginDTO, RegisterDTO, AuthResponse, LogoutResponse } from "@/lib/types/entities/auth";
+import type {
+  LoginDTO,
+  RegisterDTO,
+  AuthResponse,
+  LogoutResponse,
+  User,
+} from "@/lib/types/entities/auth";
 import { getCookieStore } from "../utils/cookies/utils";
+import { ApiResponse } from "@/lib/types/subTypes/commonTypes";
 
-// Create the Auth A PI resource
-const authApi = createApiResource<AuthResponse, LoginDTO, RegisterDTO>("auth");
+// Create the Auth API resource - base path is /api/v1/auth
+const authApi = createApiResource<AuthResponse, LoginDTO, RegisterDTO>(
+  "api/v1/auth"
+);
 
 // Authentication methods
-export async function login(credentials: LoginDTO) {
-  // The fetchData function in main.ts already handles token storage
-  return await authApi.postResource<AuthResponse, LoginDTO>("login", credentials);
+export async function login(
+  credentials: LoginDTO
+): Promise<ApiResponse<AuthResponse>> {
+  // POST /api/v1/auth/login
+  return await authApi.postResource<AuthResponse, LoginDTO>(
+    "login",
+    credentials
+  );
 }
 
-export async function register(data: RegisterDTO) {
-  // The fetchData function in main.ts already handles token storage
-  return await authApi.postResource<AuthResponse, RegisterDTO>("register", data);
+export async function register(
+  data: RegisterDTO
+): Promise<ApiResponse<AuthResponse>> {
+  // POST /api/v1/auth/register
+  return await authApi.postResource<AuthResponse, RegisterDTO>(
+    "register",
+    data
+  );
 }
 
 export async function logout() {
-  const response = await authApi.postResource<LogoutResponse, {}>("logout", {});
-  
-  // Clear cookies
+  // Clear cookies locally (no logout endpoint in API)
   const cookieStore = await getCookieStore();
   cookieStore.delete("token");
   cookieStore.delete("userType");
-  
-  return response;
+
+  return { success: true, message: "Logged out successfully" };
 }
 
-export async function getCurrentUser() {
-  return await authApi.getResource<AuthResponse["user"]>("me");
+export async function getCurrentUser(): Promise<User> {
+  // GET /api/v1/auth/me
+  return await authApi.getResource<User>("me");
 }
 
 export async function validateAdminAccess(): Promise<boolean> {
   try {
-    const response = await authApi.getResource<{ data: { id: number; name: string; email: string; roles: string } }>("me");
-    return response.data.roles === "ROLE_ADMIN";
+    const user = await getCurrentUser();
+    return user.roles === "ROLE_ADMIN";
   } catch (error) {
     return false;
   }
@@ -48,6 +66,7 @@ export async function isAuthenticated(): Promise<boolean> {
   return !!token;
 }
 
-export async function refreshToken() {
+export async function refreshToken(): Promise<ApiResponse<{ token: string }>> {
+  // POST /api/v1/auth/refresh-token
   return await authApi.postResource<{ token: string }, {}>("refresh-token", {});
 }

@@ -11,15 +11,21 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().optional(),
-}).refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    roles: z.string().default("ROLE_USER"),
+    confirmPassword: z.string().optional(),
+  })
+  .refine(
+    (data) => !data.confirmPassword || data.password === data.confirmPassword,
+    {
+      message: "Passwords don't match",
+      path: ["confirmPassword"],
+    }
+  );
 
 // Server Actions
 export async function loginAction(
@@ -84,7 +90,9 @@ export async function registerAction(
     }
 
     const { confirmPassword, ...registerData } = parsed.data;
-    const response = await authApi.register(registerData);
+    // Add roles field for the API
+    const apiData = { ...registerData, roles: "ROLE_USER" };
+    const response = await authApi.register(apiData);
 
     if (response.success) {
       return {

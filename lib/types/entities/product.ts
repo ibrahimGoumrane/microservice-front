@@ -1,14 +1,15 @@
 // Product Entity Types
 
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
   category: string;
-  image: string;
-  stock: number;
-  rating: number;
+  imageUrl: string;
+  stockQuantity: number;
+  active: boolean;
+  rating?: number;
 }
 
 // DTOs for Product operations
@@ -17,9 +18,10 @@ export interface CreateProductDTO {
   description: string;
   price: number;
   category: string;
-  image: string;
-  stock: number;
+  stockQuantity: number;
+  active?: boolean;
   rating?: number;
+  image: File;
 }
 
 export interface UpdateProductDTO {
@@ -27,20 +29,20 @@ export interface UpdateProductDTO {
   description?: string;
   price?: number;
   category?: string;
-  image?: string;
-  stock?: number;
+  stockQuantity?: number;
+  active?: boolean;
   rating?: number;
+  image?: File;
 }
 
 export interface ProductResponse {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
   category: string;
-  image: string;
-  stock: number;
-  rating: number;
-  createdAt: string;
-  updatedAt: string;
+  imageUrl: string;
+  stockQuantity: number;
+  active: boolean;
+  rating?: number;
 }

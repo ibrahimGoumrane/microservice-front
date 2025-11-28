@@ -16,12 +16,29 @@ const addressSchema = z.object({
 });
 
 const createOrderSchema = z.object({
+  customerId: z.number().positive("Customer ID is required"),
   shippingAddress: addressSchema,
+  orderItems: z.array(
+    z.object({
+      productId: z.number().positive("Product ID is required"),
+      quantity: z.number().int().positive("Quantity must be positive"),
+      price: z.number().positive("Price must be positive"),
+    })
+  ),
 });
 
 const updateOrderSchema = z.object({
-  id: z.string(),
-  status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled"]).optional(),
+  id: z.number(),
+  status: z
+    .enum([
+      "PENDING",
+      "CONFIRMED",
+      "PROCESSING",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED",
+    ])
+    .optional(),
 });
 
 // Server Actions
@@ -52,7 +69,7 @@ export async function createOrderAction(
     const response = await ordersApi.create(parsed.data);
     revalidatePath("/orders");
     revalidatePath("/cart");
-    
+
     return {
       success: true,
       errors: {},
@@ -86,8 +103,8 @@ export async function cancelOrderAction(
   formData: FormData
 ): Promise<State> {
   try {
-    const id = formData.get("id") as string;
-    
+    const id = Number(formData.get("id"));
+
     if (!id) {
       return {
         success: false,
@@ -95,7 +112,7 @@ export async function cancelOrderAction(
       };
     }
 
-    const response = await ordersApi.update(id, { status: "cancelled" });
+    const response = await ordersApi.delete(id);
     revalidatePath("/orders");
     revalidatePath("/admin/orders");
 

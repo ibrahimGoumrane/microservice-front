@@ -1,4 +1,3 @@
-
 import {
   ApiResponse,
   PaginatedResponse,
@@ -16,7 +15,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
   private haveFiles: boolean;
 
   constructor(resourcePath: string, haveFiles: boolean = false) {
-    this.baseUrl = `/${resourcePath.replace(/^\/|\/$/g, "")}/`; // Normalize path
+    this.baseUrl = `/${resourcePath.replace(/^\/|\/$/g, "")}`; // Normalize path (no trailing slash)
     this.haveFiles = haveFiles;
   }
   /**
@@ -24,12 +23,12 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async list(): Promise<T[]> {
     try {
-      const response = (await fetchData<PaginatedResponse<T>>(
-        this.baseUrl + `?paginated=false`,
+      const response = (await fetchData<ApiResponse<T[]>>(
+        `${this.baseUrl}?paginated=false`,
         {
           method: "GET",
         }
-      )) as PaginatedResponse<T>;
+      )) as ApiResponse<T[]>;
       return response.data;
     } catch (error) {
       console.error("Error fetching resource list:", error);
@@ -50,8 +49,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
   ): Promise<PaginatedResponse<R>> {
     try {
       const response = (await fetchData<PaginatedResponse<R>>(
-        this.baseUrl +
-          `?page=${page}&limit=${limit}&search=${search}&admin=${admin}&paginated=${paginated}`,
+        `${this.baseUrl}?page=${page}&limit=${limit}&search=${search}&admin=${admin}&paginated=${paginated}`,
         {
           method: "GET",
         }
@@ -62,11 +60,12 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
       return {
         data: [],
         success: false,
-        meta: {
+        code: 500,
+        metadata: {
           pagination: {
             page: 1,
-            limit: 10,
-            total: 0,
+            pageSize: 10,
+            totalItems: 0,
             totalPages: 0,
           },
         },
@@ -80,7 +79,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
   async get(id: number | string): Promise<T> {
     try {
       const response = (await fetchData<ApiResponse<T>>(
-        `${this.baseUrl}${id}/`,
+        `${this.baseUrl}/${id}`,
         {
           method: "GET",
         }
@@ -117,7 +116,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
     const body = this.haveFiles
       ? this.toFormData(data as Record<string, string | File>)
       : JSON.stringify(data);
-    const response = (await fetchData<ApiResponse<T>>(`${this.baseUrl}${id}/`, {
+    const response = (await fetchData<ApiResponse<T>>(`${this.baseUrl}/${id}`, {
       method: fetchMethod,
       body,
     })) as ApiResponse<T>;
@@ -129,7 +128,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async delete(id: number | string): Promise<ApiResponse<null>> {
     const response = (await fetchData<ApiResponse<null>>(
-      `${this.baseUrl}${id}/`,
+      `${this.baseUrl}/${id}`,
       {
         method: "DELETE",
       }
@@ -141,15 +140,15 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async getAllResource<R>(resourcePath: string): Promise<R[]> {
     try {
-      const response = (await fetchData<PaginatedResponse<R>>(
-        `${this.baseUrl}${resourcePath.replace(
+      const response = (await fetchData<ApiResponse<R[]>>(
+        `${this.baseUrl}/${resourcePath.replace(
           /^\/|\/$/g,
           ""
-        )}/?paginated=false`,
+        )}?paginated=false`,
         {
           method: "GET",
         }
-      )) as PaginatedResponse<R>;
+      )) as ApiResponse<R[]>;
       return response.data;
     } catch (error) {
       console.error("Error fetching all resources:", error);
@@ -169,10 +168,10 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
   ): Promise<PaginatedResponse<R>> {
     try {
       const response = (await fetchData<PaginatedResponse<R>>(
-        `${this.baseUrl}${resourcePath.replace(
+        `${this.baseUrl}/${resourcePath.replace(
           /^\/|\/$/g,
           ""
-        )}/?page=${page}&limit=${limit}&search=${search}&paginated=${paginated}&admin=${admin}`,
+        )}?page=${page}&limit=${limit}&search=${search}&paginated=${paginated}&admin=${admin}`,
         {
           method: "GET",
         }
@@ -183,11 +182,12 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
       return {
         data: [],
         success: false,
-        meta: {
+        code: 500,
+        metadata: {
           pagination: {
             page,
-            limit,
-            total: 0,
+            pageSize: limit,
+            totalItems: 0,
             totalPages: 0,
           },
         },
@@ -201,7 +201,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
   async getResource<R>(resourcePath: string): Promise<R> {
     try {
       const response = (await fetchData<ApiResponse<R>>(
-        `${this.baseUrl}${resourcePath.replace(/^\/|\/$/g, "")}/`,
+        `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`,
         {
           method: "GET",
         }
@@ -223,7 +223,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
       ? this.toFormData(data as Record<string, File>)
       : JSON.stringify(data);
     return (await fetchData<ApiResponse<T>>(
-      `${this.baseUrl}${resourcePath.replace(/^\/|\/$/g, "")}/`,
+      `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`,
       {
         method: "POST",
         body,
@@ -235,7 +235,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async deleteResource<T>(resourcePath: string): Promise<ApiResponse<T>> {
     return (await fetchData<ApiResponse<T>>(
-      `${this.baseUrl}${resourcePath.replace(/^\/|\/$/g, "")}/`,
+      `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`,
       {
         method: "DELETE",
       }
@@ -247,7 +247,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async downloadFileResource(resourcePath: string): Promise<Blob> {
     const response = await downloadFile(
-      `${this.baseUrl}${resourcePath.replace(/^\/|\/$/g, "")}/`
+      `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`
     );
     return response;
   }

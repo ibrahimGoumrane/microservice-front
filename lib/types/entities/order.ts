@@ -1,5 +1,4 @@
 // Order Entity Types
-import type { CartItem } from "./cart";
 
 export interface Address {
   fullName: string;
@@ -10,34 +9,57 @@ export interface Address {
   country: string;
 }
 
+export interface OrderItem {
+  productId: number;
+  quantity: number;
+  price: number;
+  subtotal?: number;
+}
+
+export type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
+
 export interface Order {
-  id: string;
-  userId: string;
-  items: CartItem[];
-  total: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  id: number;
+  orderNumber: string;
+  customerId: number;
+  totalAmount: number;
+  status: OrderStatus;
   shippingAddress: Address;
+  orderItems: OrderItem[];
   createdAt: string;
   updatedAt: string;
 }
 
 // DTOs for Order operations
 export interface CreateOrderDTO {
+  customerId: number;
   shippingAddress: Address;
+  orderItems: OrderItem[];
+}
+
+export interface UpdateOrderStatusDTO {
+  status: OrderStatus;
 }
 
 export interface UpdateOrderDTO {
-  status?: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status?: OrderStatus;
   shippingAddress?: Address;
 }
 
 export interface OrderResponse {
-  id: string;
-  userId: string;
-  items: CartItem[];
-  total: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  id: number;
+  orderNumber: string;
+  customerId: number;
+  totalAmount: number;
+  status: OrderStatus;
   shippingAddress: Address;
+  orderItems: OrderItem[];
   createdAt: string;
   updatedAt: string;
 }

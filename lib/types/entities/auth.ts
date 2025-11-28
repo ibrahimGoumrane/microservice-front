@@ -9,17 +9,19 @@ export interface RegisterDTO {
   name: string;
   email: string;
   password: string;
-  confirmPassword?: string;
+  roles: string;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  roles: string;
 }
 
 export interface AuthResponse {
   token: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: "user" | "admin";
-  };
+  user: User;
 }
 
 export interface LogoutResponse {

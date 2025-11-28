@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,72 +22,83 @@ interface OrdersListClientProps {
 export function OrdersListClient({ orders }: OrdersListClientProps) {
   if (orders.length === 0) {
     return (
-      <div className="min-h-screen">
-        <Header />
-        <div className="container mx-auto flex flex-col items-center justify-center px-4 py-16">
-          <div className="rounded-full bg-muted p-6">
-            <Package className="h-12 w-12 text-muted-foreground" />
-          </div>
-          <h1 className="mt-6 text-2xl font-bold">No orders yet</h1>
-          <p className="mt-2 text-muted-foreground">Start shopping to see your orders here!</p>
-          <Link href="/products">
-            <Button className="mt-6 gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              Start Shopping
-            </Button>
-          </Link>
+      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-16">
+        <div className="rounded-full bg-muted p-6">
+          <Package className="h-12 w-12 text-muted-foreground" />
         </div>
+        <h1 className="mt-6 text-2xl font-bold">No orders yet</h1>
+        <p className="mt-2 text-muted-foreground">
+          Start shopping to see your orders here!
+        </p>
+        <Link href="/products">
+          <Button className="mt-6 gap-2">
+            <ShoppingBag className="h-4 w-4" />
+            Start Shopping
+          </Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <Header />
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold">My Orders</h1>
+      <p className="mt-2 text-muted-foreground">
+        {orders.length} order{orders.length !== 1 && "s"}
+      </p>
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold">My Orders</h1>
-        <p className="mt-2 text-muted-foreground">
-          {orders.length} order{orders.length !== 1 && "s"}
-        </p>
-
-        <div className="mt-8 space-y-4">
-          {orders.map((order) => (
-            <Card key={order.id}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <div className="mt-8 space-y-4">
+        {orders.map((order) => (
+          <Card key={order.id}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle className="text-lg font-mono">
+                  {order.orderNumber}
+                </CardTitle>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {new Date(order.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                className={
+                  statusColors[
+                    order.status.toLowerCase() as keyof typeof statusColors
+                  ] || statusColors.pending
+                }
+              >
+                {order.status}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <CardTitle className="text-lg font-mono">{order.id}</CardTitle>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {new Date(order.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                  <p className="text-sm text-muted-foreground">
+                    {order.orderItems.length} item
+                    {order.orderItems.length !== 1 && "s"}
+                  </p>
+                  <p className="mt-1 font-semibold">
+                    ${order.totalAmount.toFixed(2)}
                   </p>
                 </div>
-                <Badge variant="outline" className={statusColors[order.status]}>
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {order.items.length} item{order.items.length !== 1 && "s"}
-                    </p>
-                    <p className="mt-1 font-semibold">${order.total.toFixed(2)}</p>
-                  </div>
-                  <Link href={`/orders/${order.id}`}>
-                    <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-                      View Details
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <Link href={`/orders/${order.orderNumber}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 bg-transparent"
+                  >
+                    View Details
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

@@ -1,19 +1,32 @@
 import { getProductById, getAllProducts } from "@/lib/network/api/products";
+import { HeaderWrapper } from "@/components/header-wrapper";
 import { notFound } from "next/navigation";
 import { ProductDetailClient } from "./_components/product-detail-client";
 
-export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
-  const product = await getProductById(id);
-  
+  const product = await getProductById(+id);
+
   if (!product) {
     notFound();
   }
 
-  const allProducts = await getAllProducts(1, 8, undefined, false, true);
+  const allProducts = await getAllProducts(1, 8, undefined, true);
   const relatedProducts = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  return <ProductDetailClient product={product} relatedProducts={relatedProducts} />;
+  return (
+    <div className="min-h-screen">
+      <HeaderWrapper />
+      <ProductDetailClient
+        product={product}
+        relatedProducts={relatedProducts}
+      />
+    </div>
+  );
 }

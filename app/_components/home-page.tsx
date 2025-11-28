@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Header } from "@/components/header";
+import { HeaderWrapper } from "@/components/header-wrapper";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Headphones } from "lucide-react";
@@ -9,10 +9,10 @@ interface HomePageProps {
   featuredProducts: Product[];
 }
 
-export function HomePage({ featuredProducts }: HomePageProps) {
+export async function HomePage({ featuredProducts }: HomePageProps) {
   return (
     <div className="min-h-screen">
-      <Header />
+      <HeaderWrapper />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10">
@@ -22,8 +22,9 @@ export function HomePage({ featuredProducts }: HomePageProps) {
               Discover Quality Products for Every Need
             </h1>
             <p className="mt-6 text-lg text-muted-foreground text-pretty">
-              Shop our curated collection of premium products. From electronics to fashion, find everything you need
-              with fast shipping and secure checkout.
+              Shop our curated collection of premium products. From electronics
+              to fashion, find everything you need with fast shipping and secure
+              checkout.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/products">
@@ -51,7 +52,9 @@ export function HomePage({ featuredProducts }: HomePageProps) {
             </div>
             <div>
               <h3 className="font-semibold">Free Shipping</h3>
-              <p className="text-sm text-muted-foreground">On orders over $50</p>
+              <p className="text-sm text-muted-foreground">
+                On orders over $50
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -60,7 +63,9 @@ export function HomePage({ featuredProducts }: HomePageProps) {
             </div>
             <div>
               <h3 className="font-semibold">Secure Payment</h3>
-              <p className="text-sm text-muted-foreground">100% secure checkout</p>
+              <p className="text-sm text-muted-foreground">
+                100% secure checkout
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -69,7 +74,9 @@ export function HomePage({ featuredProducts }: HomePageProps) {
             </div>
             <div>
               <h3 className="font-semibold">24/7 Support</h3>
-              <p className="text-sm text-muted-foreground">Dedicated support team</p>
+              <p className="text-sm text-muted-foreground">
+                Dedicated support team
+              </p>
             </div>
           </div>
         </div>
@@ -79,8 +86,12 @@ export function HomePage({ featuredProducts }: HomePageProps) {
       <section className="container mx-auto px-4 py-16">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold md:text-3xl">Featured Products</h2>
-            <p className="mt-2 text-muted-foreground">Handpicked selections just for you</p>
+            <h2 className="text-2xl font-bold md:text-3xl">
+              Featured Products
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Handpicked selections just for you
+            </p>
           </div>
           <Link href="/products">
             <Button variant="ghost" className="gap-2">
@@ -103,7 +114,9 @@ export function HomePage({ featuredProducts }: HomePageProps) {
             <div>
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <span className="text-lg font-bold text-primary-foreground">S</span>
+                  <span className="text-lg font-bold text-primary-foreground">
+                    S
+                  </span>
                 </div>
                 <span className="text-xl font-bold">ShopHub</span>
               </div>
@@ -120,17 +133,26 @@ export function HomePage({ featuredProducts }: HomePageProps) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products?category=Electronics" className="hover:text-foreground">
+                  <Link
+                    href="/products?category=Electronics"
+                    className="hover:text-foreground"
+                  >
                     Electronics
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products?category=Clothing" className="hover:text-foreground">
+                  <Link
+                    href="/products?category=Clothing"
+                    className="hover:text-foreground"
+                  >
                     Clothing
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products?category=Accessories" className="hover:text-foreground">
+                  <Link
+                    href="/products?category=Accessories"
+                    className="hover:text-foreground"
+                  >
                     Accessories
                   </Link>
                 </li>
@@ -165,22 +187,32 @@ export function HomePage({ featuredProducts }: HomePageProps) {
               <h4 className="font-semibold">Support</h4>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <span className="hover:text-foreground cursor-pointer">Contact Us</span>
+                  <span className="hover:text-foreground cursor-pointer">
+                    Contact Us
+                  </span>
                 </li>
                 <li>
-                  <span className="hover:text-foreground cursor-pointer">FAQ</span>
+                  <span className="hover:text-foreground cursor-pointer">
+                    FAQ
+                  </span>
                 </li>
                 <li>
-                  <span className="hover:text-foreground cursor-pointer">Shipping Info</span>
+                  <span className="hover:text-foreground cursor-pointer">
+                    Shipping Info
+                  </span>
                 </li>
                 <li>
-                  <span className="hover:text-foreground cursor-pointer">Returns</span>
+                  <span className="hover:text-foreground cursor-pointer">
+                    Returns
+                  </span>
                 </li>
               </ul>
             </div>
           </div>
           <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} ShopHub. All rights reserved.</p>
+            <p>
+              &copy; {new Date().getFullYear()} ShopHub. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
