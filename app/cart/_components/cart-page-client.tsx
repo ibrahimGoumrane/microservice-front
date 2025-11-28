@@ -1,6 +1,5 @@
 "use client";
 
-import { useFormState } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { updateCartItemAction, removeFromCartAction } from "@/lib/actions/cart";
 import type { CartResponse } from "@/lib/types/main";
 import { getImageUrl } from "@/lib/utils/image";
+import { useActionState } from "react";
 
 const initialState = {
   success: false,
@@ -27,8 +27,8 @@ interface CartPageClientProps {
 }
 
 export function CartPageClient({ cart, isAuthenticated }: CartPageClientProps) {
-  const [, updateAction] = useFormState(updateCartItemAction, initialState);
-  const [, removeAction] = useFormState(removeFromCartAction, initialState);
+  const [, updateAction] = useActionState(updateCartItemAction, initialState);
+  const [, removeAction] = useActionState(removeFromCartAction, initialState);
 
   const handleUpdateQuantity = async (productId: number, quantity: number) => {
     const formData = new FormData();

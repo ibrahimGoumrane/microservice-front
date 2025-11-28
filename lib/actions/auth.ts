@@ -32,17 +32,18 @@ export async function loginAction(
   prevState: State,
   formData: FormData
 ): Promise<State> {
-  try {
-    const data = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
+  const submittedData = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+  };
 
-    const parsed = loginSchema.safeParse(data);
+  try {
+    const parsed = loginSchema.safeParse(submittedData);
     if (!parsed.success) {
       return {
         success: false,
         errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        data: { email: submittedData.email } as any, // Preserve email, not password
       };
     }
 
@@ -59,12 +60,14 @@ export async function loginAction(
       return {
         success: false,
         errors: { general: ["Login failed. Please check your credentials."] },
+        data: { email: submittedData.email } as any, // Preserve email, not password
       };
     }
   } catch (error) {
     return {
       success: false,
       errors: { general: [(error as Error).message] },
+      data: { email: submittedData.email } as any, // Preserve email, not password
     };
   }
 }
@@ -73,19 +76,20 @@ export async function registerAction(
   prevState: State,
   formData: FormData
 ): Promise<State> {
-  try {
-    const data = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      confirmPassword: formData.get("confirmPassword") as string,
-    };
+  const submittedData = {
+    name: formData.get("name") as string,
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    confirmPassword: formData.get("confirmPassword") as string,
+  };
 
-    const parsed = registerSchema.safeParse(data);
+  try {
+    const parsed = registerSchema.safeParse(submittedData);
     if (!parsed.success) {
       return {
         success: false,
         errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        data: { name: submittedData.name, email: submittedData.email } as any, // Preserve name and email, not passwords
       };
     }
 
@@ -104,12 +108,14 @@ export async function registerAction(
       return {
         success: false,
         errors: { general: ["Registration failed. Please try again."] },
+        data: { name: submittedData.name, email: submittedData.email } as any, // Preserve name and email, not passwords
       };
     }
   } catch (error) {
     return {
       success: false,
       errors: { general: [(error as Error).message] },
+      data: { name: submittedData.name, email: submittedData.email } as any, // Preserve name and email, not passwords
     };
   }
 }

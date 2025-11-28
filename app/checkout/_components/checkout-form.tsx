@@ -1,7 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ interface CheckoutFormProps {
 
 export function CheckoutForm({ cart, cartTotal }: CheckoutFormProps) {
   const router = useRouter();
-  const [state, formAction, isPending] = useFormState(
+  const [state, formAction, isPending] = useActionState(
     createOrderAction,
     initialState
   );

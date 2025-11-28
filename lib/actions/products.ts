@@ -1,9 +1,15 @@
 "use server";
 
-import { z } from "zod";
 import { State } from "@/lib/schema/base";
-import { productsApi } from "@/lib/network/api/products";
-import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { createApiResource } from "../network/utils/base";
+import { CreateProductDTO, Product, UpdateProductDTO } from "../types/main";
+
+const productsApi = createApiResource<
+  Product,
+  CreateProductDTO,
+  UpdateProductDTO
+>("api/v1/products", true);
 
 // Validation schemas
 const createProductSchema = z.object({

@@ -1,13 +1,19 @@
 "use client";
 
-import { useFormState } from "react-dom";
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { registerAction } from "@/lib/actions/auth";
@@ -15,10 +21,14 @@ import { registerAction } from "@/lib/actions/auth";
 const initialState = {
   success: false,
   errors: {} as Record<string, string[]>,
+  data: null,
 };
 
 export function RegisterForm() {
-  const [state, formAction, isPending] = useFormState(registerAction, initialState);
+  const [state, formAction, isPending] = useActionState(
+    registerAction,
+    initialState
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -33,11 +43,15 @@ export function RegisterForm() {
         <CardHeader className="space-y-1 text-center">
           <Link href="/" className="mx-auto mb-4 flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-xl font-bold text-primary-foreground">S</span>
+              <span className="text-xl font-bold text-primary-foreground">
+                S
+              </span>
             </div>
           </Link>
           <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Enter your information to get started</CardDescription>
+          <CardDescription>
+            Enter your information to get started
+          </CardDescription>
         </CardHeader>
         <form action={formAction}>
           <CardContent className="space-y-4">
@@ -53,11 +67,14 @@ export function RegisterForm() {
                 name="name"
                 type="text"
                 placeholder="John Doe"
+                defaultValue={(state.data as any)?.name || ""}
                 required
                 disabled={isPending}
               />
               {state.errors?.name && (
-                <p className="text-sm text-destructive">{state.errors.name[0]}</p>
+                <p className="text-sm text-destructive">
+                  {state.errors.name[0]}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -67,11 +84,14 @@ export function RegisterForm() {
                 name="email"
                 type="email"
                 placeholder="you@example.com"
+                defaultValue={(state.data as any)?.email || ""}
                 required
                 disabled={isPending}
               />
               {state.errors?.email && (
-                <p className="text-sm text-destructive">{state.errors.email[0]}</p>
+                <p className="text-sm text-destructive">
+                  {state.errors.email[0]}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -81,11 +101,14 @@ export function RegisterForm() {
                 name="password"
                 type="password"
                 placeholder="••••••••"
+                defaultValue={(state.data as any)?.password || ""}
                 required
                 disabled={isPending}
               />
               {state.errors?.password && (
-                <p className="text-sm text-destructive">{state.errors.password[0]}</p>
+                <p className="text-sm text-destructive">
+                  {state.errors.password[0]}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -95,11 +118,14 @@ export function RegisterForm() {
                 name="confirmPassword"
                 type="password"
                 placeholder="••••••••"
+                defaultValue={(state.data as any)?.confirmPassword || ""}
                 required
                 disabled={isPending}
               />
               {state.errors?.confirmPassword && (
-                <p className="text-sm text-destructive">{state.errors.confirmPassword[0]}</p>
+                <p className="text-sm text-destructive">
+                  {state.errors.confirmPassword[0]}
+                </p>
               )}
             </div>
           </CardContent>
@@ -110,7 +136,10 @@ export function RegisterForm() {
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-primary hover:underline">
+              <Link
+                href="/login"
+                className="font-medium text-primary hover:underline"
+              >
                 Sign in
               </Link>
             </p>

@@ -12,7 +12,7 @@ import {
 } from "@/lib/types/subTypes/commonTypes";
 
 // Create the Users API resource - base path is /api/v1/users (Admin only)
-export const usersApi = createApiResource<User, CreateUserDTO, UpdateUserDTO>(
+const usersApi = createApiResource<User, CreateUserDTO, UpdateUserDTO>(
   "api/v1/users"
 );
 

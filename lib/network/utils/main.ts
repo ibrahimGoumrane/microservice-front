@@ -178,14 +178,14 @@ export async function fetchData<T>(
   const token = cookieStore.get("token")?.value;
 
   // Debug: Log cookie information
-  if (process.env.NODE_ENV === "development") {
-    console.log("🍪 Cookie Debug:", {
-      hasToken: !!token,
-      tokenLength: token?.length || 0,
-      allCookies: cookieStore.getAll(),
-      requestUrl: serverAddress + input,
-    });
-  }
+  // if (process.env.NODE_ENV === "development") {
+  //   console.log("🍪 Cookie Debug:", {
+  //     hasToken: !!token,
+  //     tokenLength: token?.length || 0,
+  //     allCookies: cookieStore.getAll(),
+  //     requestUrl: serverAddress + input,
+  //   });
+  // }
 
   if (token) {
     init.headers = {
@@ -207,28 +207,31 @@ export async function fetchData<T>(
     (contentType.startsWith("application/") && !contentType.includes("json"));
 
   // Log the response for debugging (but not for file responses)
-  if (!isFileResponse) {
-    console.log(
-      "Request URL:",
-      serverAddress + input,
-      "Method:",
-      init.method || "GET",
-      "Response:",
-      await response.clone().json(),
-      "Status:",
-      response.status
-    );
-  } else {
-    console.log(
-      "Request URL:",
-      serverAddress + input,
-      "Method:",
-      init.method || "GET",
-      "Content-Type:",
-      contentType,
-      "Status:",
-      response.status
-    );
+  if (process.env.NODE_ENV === "development") {
+    const jsonResponse = await response.clone().text();
+    if (!isFileResponse) {
+      console.log(
+        "Request URL:",
+        serverAddress + input,
+        "Method:",
+        init.method || "GET",
+        "Status:",
+        response.status,
+        "Response:",
+        jsonResponse
+      );
+    } else {
+      console.log(
+        "Request URL:",
+        serverAddress + input,
+        "Method:",
+        init.method || "GET",
+        "Content-Type:",
+        contentType,
+        "Status:",
+        response.status
+      );
+    }
   }
   if (
     response.ok &&
@@ -284,8 +287,23 @@ export async function fetchData<T>(
       return response as unknown as T;
     } else {
       // Default JSON response
-      const responseBody = await response.json();
-      return responseBody as Promise<T>;
+      // Check if response has content before parsing
+      const text = await response.text();
+      if (!text || text.trim() === "") {
+        console.warn("Empty response received from:", serverAddress + input);
+        return [] as unknown as T; // Return empty array for empty responses
+      }
+      try {
+        const responseBody = JSON.parse(text);
+        return responseBody as Promise<T>;
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError, "Response text:", text);
+        throw new Error(
+          `Failed to parse JSON response: ${
+            parseError instanceof Error ? parseError.message : "Unknown error"
+          }`
+        );
+      }
     }
   } else {
     // For error responses, try to parse as JSON, but fallback to text if it fails
@@ -294,10 +312,17 @@ export async function fetchData<T>(
 
     try {
       errorBody = await response.json();
-      // Extract the error message and the error errors
-      if (Array.isArray(errorBody.errors)) {
+
+      // First, check if there's a direct message field (from your backend)
+      if (errorBody.message) {
+        errorMessage = errorBody.message;
+      }
+      // Then check for errors array
+      else if (Array.isArray(errorBody.errors)) {
         errorMessage = errorBody.errors[0] || "An error occurred";
-      } else {
+      }
+      // Finally check for errors object
+      else if (errorBody.errors && typeof errorBody.errors === "object") {
         const errorErrors = Object.values(errorBody.errors)[0];
         if (typeof errorErrors === "string") {
           errorMessage = errorErrors;
@@ -305,6 +330,11 @@ export async function fetchData<T>(
           errorMessage = (errorErrors as string[])?.[0] || "An error occurred";
         }
       }
+      // Fallback to generic message
+      else {
+        errorMessage = "An error occurred";
+      }
+
       if (errorMessage.startsWith("SQLSTATE[")) {
         errorMessage = "value error, try another thing";
       }

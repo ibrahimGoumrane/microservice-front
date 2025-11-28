@@ -1,13 +1,19 @@
 "use client";
 
-import { useFormState } from "react-dom";
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { loginAction } from "@/lib/actions/auth";
@@ -15,10 +21,14 @@ import { loginAction } from "@/lib/actions/auth";
 const initialState = {
   success: false,
   errors: {} as Record<string, string[]>,
+  data: null,
 };
 
 export function LoginForm() {
-  const [state, formAction, isPending] = useFormState(loginAction, initialState);
+  const [state, formAction, isPending] = useActionState(
+    loginAction,
+    initialState
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -33,11 +43,15 @@ export function LoginForm() {
         <CardHeader className="space-y-1 text-center">
           <Link href="/" className="mx-auto mb-4 flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-xl font-bold text-primary-foreground">S</span>
+              <span className="text-xl font-bold text-primary-foreground">
+                S
+              </span>
             </div>
           </Link>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
         </CardHeader>
         <form action={formAction}>
           <CardContent className="space-y-4">
@@ -53,11 +67,14 @@ export function LoginForm() {
                 name="email"
                 type="email"
                 placeholder="you@example.com"
+                defaultValue={(state.data as any)?.email || ""}
                 required
                 disabled={isPending}
               />
               {state.errors?.email && (
-                <p className="text-sm text-destructive">{state.errors.email[0]}</p>
+                <p className="text-sm text-destructive">
+                  {state.errors.email[0]}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -71,11 +88,14 @@ export function LoginForm() {
                 disabled={isPending}
               />
               {state.errors?.password && (
-                <p className="text-sm text-destructive">{state.errors.password[0]}</p>
+                <p className="text-sm text-destructive">
+                  {state.errors.password[0]}
+                </p>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Tip: Use any email with &quot;admin&quot; to login as an admin (e.g., admin@test.com)
+              Tip: Use any email with &quot;admin&quot; to login as an admin
+              (e.g., admin@test.com)
             </p>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
@@ -85,7 +105,10 @@ export function LoginForm() {
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-medium text-primary hover:underline">
+              <Link
+                href="/register"
+                className="font-medium text-primary hover:underline"
+              >
                 Sign up
               </Link>
             </p>

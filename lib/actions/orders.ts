@@ -2,8 +2,17 @@
 
 import { z } from "zod";
 import { State } from "@/lib/schema/base";
-import { ordersApi } from "@/lib/network/api/orders";
 import { revalidatePath } from "next/cache";
+import { createApiResource } from "../network/utils/base";
+import { CreateOrderDTO, Order } from "../types/main";
+import { UpdateOrderStatusDTO } from "../types/entities/order";
+
+// Create the Orders API resource - base path is /api/v1/orders
+const ordersApi = createApiResource<
+  Order,
+  CreateOrderDTO,
+  UpdateOrderStatusDTO
+>("api/v1/orders");
 
 // Validation schemas
 const addressSchema = z.object({

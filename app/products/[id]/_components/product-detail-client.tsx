@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { addToCartAction } from "@/lib/actions/cart";
 import type { Product } from "@/lib/types/main";
-import { useFormState } from "react-dom";
 import { getImageUrl } from "@/lib/utils/image";
 
 const initialState = {
@@ -36,7 +35,7 @@ export function ProductDetailClient({
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const [state, formAction] = useFormState(addToCartAction, initialState);
+  const [state, formAction] = useActionState(addToCartAction, initialState);
 
   const handleAddToCart = async () => {
     const formData = new FormData();

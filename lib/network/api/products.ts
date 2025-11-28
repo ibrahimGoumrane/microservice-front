@@ -12,7 +12,7 @@ import {
 } from "@/lib/types/subTypes/commonTypes";
 
 // Create the Products API resource - base path is /api/v1/products
-export const productsApi = createApiResource<
+const productsApi = createApiResource<
   Product,
   CreateProductDTO,
   UpdateProductDTO
@@ -25,21 +25,15 @@ export async function getAllProducts(
   search?: string,
   paginated: boolean = true
 ): Promise<Product[]> {
-  // GET /api/v1/products?page=1&limit=10&search=query&paginated=true
-  const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
-
-  if (!paginated) {
-    // When pagination is disabled, return array directly
-    return await productsApi.getResource<Product[]>(
-      `?page=${page}&limit=${limit}${searchParam}&paginated=${paginated}`
-    );
-  }
-
-  // When paginated, get the response and extract data
-  const response = await productsApi.getResource<PaginatedResponse<Product>>(
-    `?page=${page}&limit=${limit}${searchParam}&paginated=${paginated}`
+  // When paginated, use getAllResourcePaginated to get full response
+  const response = await productsApi.getAllResourcePaginated<Product>(
+    "",
+    page,
+    limit,
+    search || "",
+    paginated
   );
-  return response.data;
+  return response?.data || [];
 }
 
 export async function getProductById(id: number): Promise<Product> {
@@ -51,18 +45,14 @@ export async function getProductsByCategory(
   category: string
 ): Promise<Product[]> {
   // GET /api/v1/products/category/{category}
-  const response = await productsApi.getResource<Product[]>(
-    `category/${category}`
-  );
-  return response;
+  return await productsApi.getAllResource<Product>(`category/${category}`);
 }
 
 export async function searchProducts(name: string): Promise<Product[]> {
   // GET /api/v1/products/search?name=query
-  const response = await productsApi.getResource<Product[]>(
+  return await productsApi.getAllResource<Product>(
     `search?name=${encodeURIComponent(name)}`
   );
-  return response;
 }
 
 export async function createProduct(

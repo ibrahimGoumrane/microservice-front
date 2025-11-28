@@ -10,7 +10,7 @@ import type {
 import { ApiResponse } from "@/lib/types/subTypes/commonTypes";
 
 // Create the Cart API resource - base path is /api/v1/cart
-export const cartApi = createApiResource<Cart, AddToCartDTO, UpdateCartItemDTO>(
+const cartApi = createApiResource<Cart, AddToCartDTO, UpdateCartItemDTO>(
   "api/v1/cart"
 );
 

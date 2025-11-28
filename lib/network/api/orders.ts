@@ -10,7 +10,7 @@ import type {
 import { ApiResponse } from "@/lib/types/subTypes/commonTypes";
 
 // Create the Orders API resource - base path is /api/v1/orders
-export const ordersApi = createApiResource<
+const ordersApi = createApiResource<
   Order,
   CreateOrderDTO,
   UpdateOrderStatusDTO
@@ -36,7 +36,7 @@ export async function getOrderByOrderNumber(
 
 export async function getCustomerOrders(customerId: number): Promise<Order[]> {
   // GET /api/v1/orders/customer/{customerId}
-  return await ordersApi.getResource<Order[]>(`customer/${customerId}`);
+  return await ordersApi.getAllResource<Order>(`customer/${customerId}`);
 }
 
 export async function createOrder(
