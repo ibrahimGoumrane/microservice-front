@@ -55,13 +55,13 @@ export function ServerDataTable<T extends Record<string, any>>({
 
   const currentSearch = searchParams.get("search") || "";
   const currentPage = pagination.page;
-  const currentPageSize = pagination.limit;
+  const currentPageSize = pagination.pageSize;
 
   // Calculate derived pagination values
   const hasNextPage = pagination.page < pagination.totalPages;
   const hasPreviousPage = pagination.page > 1;
   const startItem = (currentPage - 1) * currentPageSize + 1;
-  const endItem = Math.min(currentPage * currentPageSize, pagination.total);
+  const endItem = Math.min(currentPage * currentPageSize, pagination.totalItems);
 
   const updateURL = (params: Record<string, string | number | null>) => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -100,12 +100,20 @@ export function ServerDataTable<T extends Record<string, any>>({
           defaultValue={currentSearch}
           onChange={(e) => {
             const value = e.target.value;
-            // Debounce search
-            const timeoutId = setTimeout(() => handleSearch(value), 500);
-            return () => clearTimeout(timeoutId);
+            // Clear existing timeout
+            if ((window as any).searchTimeout) {
+              clearTimeout((window as any).searchTimeout);
+            }
+            // Set new timeout
+            (window as any).searchTimeout = setTimeout(() => {
+              handleSearch(value);
+            }, 500);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              if ((window as any).searchTimeout) {
+                clearTimeout((window as any).searchTimeout);
+              }
               handleSearch(e.currentTarget.value);
             }
           }}
@@ -164,11 +172,11 @@ export function ServerDataTable<T extends Record<string, any>>({
       </div>
 
       {/* Pagination */}
-      {pagination.total > 0 && (
+      {pagination.totalItems > 0 && (
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <p className="text-sm text-muted-foreground">
-              Showing {startItem} to {endItem} of {pagination.total} results
+              Showing {startItem} to {endItem} of {pagination.totalItems} results
             </p>
           </div>
 
