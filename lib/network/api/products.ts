@@ -5,8 +5,9 @@ import type {
   Product,
   UpdateProductDTO,
 } from "@/lib/types/entities/product";
-import {
-  ApiResponse
+import type {
+  ApiResponse,
+  PaginatedResponse,
 } from "@/lib/types/subTypes/commonTypes";
 import { createApiResource } from "../utils/base";
 
@@ -94,4 +95,20 @@ export async function releaseStock(
     `${id}/release?quantity=${quantity}`,
     {}
   );
+}
+
+export async function getAllProductsPaginated(
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+): Promise<PaginatedResponse<Product>> {
+  // When paginated, use getAllResourcePaginated to get full response
+  const response = await productsApi.getAllResourcePaginated<Product>(
+    "",
+    page,
+    limit,
+    search || "",
+    true
+  );
+  return response;
 }

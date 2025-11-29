@@ -29,11 +29,9 @@ import {
 import CreateUtilisateurForm from "./create";
 import UpdateUtilisateurForm from "./update";
 import DeleteUtilisateur from "./delete";
-import type { Utilisateur } from "@/lib/types/utilisateurTypes";
-import type { License } from "@/lib/types/licenseTypes";
-import type { Entreprise } from "@/lib/types/entrepriseTypes";
+import type { User as Utilisateur } from "@/lib/types/main";
 import { useState } from "react";
-import { PaginatedResponse } from "@/lib/types/subTypes/commonTypes";
+import { PaginatedResponse, PaginationMeta } from "@/lib/types/subTypes/commonTypes";
 
 // Animation variants
 const fadeInUp = {
@@ -43,25 +41,19 @@ const fadeInUp = {
 };
 
 interface GetAllUtilisateursServerProps {
-  response: PaginatedResponse<Utilisateur>;
-  licenses: License[];
-  entreprises: Entreprise[];
+  utilisateurs: Utilisateur[];
+  pagination: PaginationMeta;
 }
 
 export default function GetAllUtilisateursServer({
-  response,
-  licenses,
-  entreprises,
+  utilisateurs,
+  pagination,
 }: GetAllUtilisateursServerProps) {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUtilisateur, setSelectedUtilisateur] =
     useState<Utilisateur | null>(null);
 
-  const {
-    data: utilisateurs,
-    meta: { pagination },
-  } = response;
 
   const handleEditClick = (utilisateur: Utilisateur) => {
     setDeleteModalOpen(false);
@@ -78,64 +70,40 @@ export default function GetAllUtilisateursServer({
   // Define columns for the server data table
   const columns: ColumnDef<Utilisateur>[] = [
     {
-      key: "idutilisateur",
+      key: "id",
       header: "ID",
       className: "font-medium",
     },
     {
-      key: "nomutilisateur",
+      key: "name",
       header: "Nom",
       cell: (utilisateur) => (
         <div className="flex items-center">
           <User className="mr-2 h-4 w-4 text-gray-500" />
-          <span className="font-medium">{utilisateur.nomutilisateur}</span>
+          <span className="font-medium">{utilisateur.name}</span>
         </div>
       ),
     },
     {
-      key: "emailutilisateur",
+      key: "email",
       header: "Email",
     },
     {
-      key: "roleutilisateur",
+      key: "roles",
       header: "Rôle",
       cell: (utilisateur) => (
         <Badge
           variant="outline"
           className={
-            utilisateur.roleutilisateur === "admin"
+            utilisateur.roles === "ROLE_ADMIN"
               ? "bg-red-100 text-red-700 border-red-300"
-              : utilisateur.roleutilisateur === "analyste"
-              ? "bg-blue-100 text-blue-700 border-blue-300"
               : "bg-gray-100 text-gray-700 border-gray-300"
           }
         >
-          {utilisateur.roleutilisateur === "admin" && (
+          {utilisateur.roles === "ROLE_ADMIN" && (
             <Crown className="mr-1 h-3 w-3" />
           )}
-          {utilisateur.roleutilisateur === "analyste" && (
-            <Shield className="mr-1 h-3 w-3" />
-          )}
-          {utilisateur.roleutilisateur === "subscriber" && (
-            <User className="mr-1 h-3 w-3" />
-          )}
-          {utilisateur.roleutilisateur}
-        </Badge>
-      ),
-    },
-    {
-      key: "deleted_at",
-      header: "Status",
-      cell: (utilisateur) => (
-        <Badge
-          variant={!utilisateur.deleted_at ? "default" : "secondary"}
-          className={
-            !utilisateur.deleted_at
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }
-        >
-          {!utilisateur.deleted_at ? "Actif" : "Supprimé"}
+          {utilisateur.roles}
         </Badge>
       ),
     },
@@ -153,7 +121,7 @@ export default function GetAllUtilisateursServer({
               handleEditClick(utilisateur);
             }}
           >
-            <Pencil className="w-4 h-4" />
+            <Pencil className=" w-4" />
           </Button>
           <Button
             variant="ghost"
@@ -162,17 +130,9 @@ export default function GetAllUtilisateursServer({
               e.stopPropagation();
               handleDeleteClick(utilisateur);
             }}
-            title={
-              utilisateur.deleted_at
-                ? "Restaurer l'utilisateur"
-                : "Supprimer l'utilisateur"
-            }
+            title={"Delete user"}
           >
-            {utilisateur.deleted_at ? (
-              <RotateCcw className="w-4 h-4 text-green-500" />
-            ) : (
-              <Trash2 className="w-4 h-4 text-red-500" />
-            )}
+            <Trash2 className=" w-4 text-red-500" />
           </Button>
         </div>
       ),
@@ -192,7 +152,7 @@ export default function GetAllUtilisateursServer({
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="sm" asChild>
               <Link href="/admin/">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="w-4 w-4 mr-2" />
                 Retour
               </Link>
             </Button>
@@ -205,22 +165,7 @@ export default function GetAllUtilisateursServer({
               </p>
             </div>
           </div>
-          {licenses.length > 0 && entreprises.length > 0 ? (
-            <CreateUtilisateurForm
-              licenses={licenses}
-              entreprises={entreprises}
-            >
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Nouvel Utilisateur
-              </Button>
-            </CreateUtilisateurForm>
-          ) : (
-            <Button disabled>
-              <Plus className="mr-2 h-4 w-4" />
-              Créer des licences et entreprises d'abord
-            </Button>
-          )}
+          <CreateUtilisateurForm />
         </div>
       </motion.div>
 
@@ -262,55 +207,13 @@ export default function GetAllUtilisateursServer({
                   <p className="text-3xl font-bold text-gray-900">
                     {
                       utilisateurs.filter(
-                        (u) => u.roleutilisateur === "admin" && !u.deleted_at
+                        (u) => u.roles === "ROLE_ADMIN"
                       ).length
                     }
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                   <Crown className="w-6 h-6 text-red-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={fadeInUp}>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Analystes</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {
-                      utilisateurs.filter(
-                        (u) => u.roleutilisateur === "analyste" && !u.deleted_at
-                      ).length
-                    }
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={fadeInUp}>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Utilisateurs Actifs
-                  </p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {utilisateurs.filter((u) => !u.deleted_at).length}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
@@ -331,7 +234,7 @@ export default function GetAllUtilisateursServer({
               Liste des Utilisateurs
             </CardTitle>
             <CardDescription>
-              {pagination.total} utilisateur{pagination.total > 1 ? "s" : ""} au
+              {pagination.totalItems} utilisateur{pagination.totalItems > 1 ? "s" : ""} au
               total
             </CardDescription>
           </CardHeader>
@@ -363,15 +266,13 @@ export default function GetAllUtilisateursServer({
           <UpdateUtilisateurForm
             utilisateurData={selectedUtilisateur}
             open={editModalOpen}
-            licenses={licenses}
-            entreprises={entreprises}
             setIsOpen={setEditModalOpen}
           />
           <DeleteUtilisateur
-            id={selectedUtilisateur.idutilisateur.toString()}
+            id={selectedUtilisateur.id.toString()}
             open={deleteModalOpen}
             setIsOpen={setDeleteModalOpen}
-            isDeleted={!!selectedUtilisateur.deleted_at}
+            isDeleted={false}
           />
         </>
       )}

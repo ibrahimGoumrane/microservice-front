@@ -1,6 +1,6 @@
-import { getAllProducts } from "@/lib/network/api/products";
+import { getAllProductsPaginated } from "@/lib/network/api/products";
 import { HeaderWrapper } from "@/components/header-wrapper";
-import { AdminProductsClient } from "./_components/admin-products-client";
+import GetAllProductsServer from "./_components/getAll";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -12,12 +12,19 @@ export default async function AdminProductsPage({
   const limit = Number(params.limit) || 10;
   const search = params.search || "";
 
-  const products = await getAllProducts(page, limit, search, true);
-
+  const response = await getAllProductsPaginated(page, limit, search);
+  const pagination  = response.metadata?.pagination ? response.metadata.pagination : {
+    page: 1,
+    pageSize: 10,
+    totalPages: 1,
+    totalItems: 0,
+  };
   return (
     <div className="min-h-screen">
       <HeaderWrapper />
-      <AdminProductsClient initialProducts={products} />
+      <div className="p-8">
+        <GetAllProductsServer products={response.data} pagination={pagination} />
+      </div>
     </div>
   );
 }

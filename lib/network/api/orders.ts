@@ -7,7 +7,7 @@ import type {
   UpdateOrderStatusDTO,
   OrderStatus,
 } from "@/lib/types/entities/order";
-import { ApiResponse } from "@/lib/types/subTypes/commonTypes";
+import { ApiResponse, PaginatedResponse } from "@/lib/types/subTypes/commonTypes";
 
 // Create the Orders API resource - base path is /api/v1/orders
 const ordersApi = createApiResource<
@@ -76,4 +76,20 @@ export async function getOrdersByStatus(
 ): Promise<Order[]> {
   const allOrders = await getCustomerOrders(customerId);
   return allOrders.filter((order) => order.status === status);
+}
+
+export async function getAllOrdersPaginated(
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+): Promise<PaginatedResponse<Order>> {
+  // When paginated, use getAllResourcePaginated to get full response
+  const response = await ordersApi.getAllResourcePaginated<Order>(
+    "",
+    page,
+    limit,
+    search || "",
+    true
+  );
+  return response;
 }
