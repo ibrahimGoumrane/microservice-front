@@ -46,25 +46,25 @@ export async function logout() {
   return { success: true, message: "Logged out successfully" };
 }
 
-export async function getCurrentUser(): Promise<User> {
-  // GET /api/v1/auth/me
-  return await authApi.getResource<User>("me");
+export async function getCurrentUser(): Promise<User | null> {
+  try {
+    // GET /api/v1/auth/me
+    return await authApi.getResource<User>("me");
+  } catch (error) {
+    // Return null if user is not authenticated or token is invalid
+    return null;
+  }
 }
 
 export async function validateAdminAccess(): Promise<boolean> {
   try {
     const user = await getCurrentUser();
-    return user.roles === "ROLE_ADMIN";
+    return user?.roles.includes("ROLE_ADMIN") || false;
   } catch (error) {
     return false;
   }
 }
 
-export async function isAuthenticated(): Promise<boolean> {
-  const cookieStore = await getCookieStore();
-  const token = cookieStore.get("token");
-  return !!token;
-}
 
 export async function refreshToken(): Promise<ApiResponse<{ token: string }>> {
   // POST /api/v1/auth/refresh-token

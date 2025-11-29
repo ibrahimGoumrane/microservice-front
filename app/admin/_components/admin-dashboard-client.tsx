@@ -1,20 +1,19 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Order, Product, User } from "@/lib/types/main";
 import {
-  Package,
-  Users,
-  ShoppingCart,
-  DollarSign,
-  TrendingUp,
   ArrowRight,
   Box,
   ClipboardList,
+  DollarSign,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  Users,
 } from "lucide-react";
-import type { User, Product, Order } from "@/lib/types/main";
+import Link from "next/link";
 
 interface AdminDashboardClientProps {
   user: User;
@@ -29,7 +28,6 @@ export function AdminDashboardClient({
   orders,
   totalUsers,
 }: AdminDashboardClientProps) {
-  const router = useRouter();
 
   const totalRevenue = orders.reduce(
     (sum, order) => sum + order.totalAmount,

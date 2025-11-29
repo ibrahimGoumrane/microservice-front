@@ -1,20 +1,15 @@
-import { redirect } from "next/navigation";
 import { HeaderWrapper } from "@/components/header-wrapper";
-import { getCurrentUser, isAuthenticated } from "@/lib/network/api/auth";
-import { getAllProducts } from "@/lib/network/api/products";
+import { getCurrentUser } from "@/lib/network/api/auth";
 import { getAllOrders } from "@/lib/network/api/orders";
+import { getAllProducts } from "@/lib/network/api/products";
 import { getAllUsers } from "@/lib/network/api/users";
 import { AdminDashboardClient } from "./_components/admin-dashboard-client";
 
 export default async function AdminDashboard() {
-  const authenticated = await isAuthenticated();
-  if (!authenticated) {
-    redirect("/login");
-  }
-
   const user = await getCurrentUser();
-  if (user.roles !== "ROLE_ADMIN") {
-    redirect("/");
+
+  if (!user) {
+    return null;
   }
 
   // Load admin data
@@ -24,7 +19,7 @@ export default async function AdminDashboard() {
     getAllUsers(0, 1000),
   ]);
 
-  const totalUsers = usersData.metadata?.pagination?.totalItems || 0;
+  const totalUsers = usersData?.metadata?.pagination?.totalItems || 0;
 
   return (
     <div className="min-h-screen">

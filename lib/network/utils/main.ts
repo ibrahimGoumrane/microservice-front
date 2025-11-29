@@ -12,6 +12,7 @@ import {
 } from "@/lib/errors/main";
 import { getCookieStore } from "./cookies/utils";
 import { headers } from "next/headers";
+import { logger } from "@/lib/logger";
 
 // Helper function to determine if we're in a secure context
 function isSecureContext() {
@@ -123,7 +124,7 @@ export async function downloadAndSaveFile(
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error("Download error:", error);
+    logger.error({ error }, 'Download error');
     throw error;
   }
 }
@@ -210,27 +211,19 @@ export async function fetchData<T>(
   if (process.env.NODE_ENV === "development") {
     const jsonResponse = await response.clone().text();
     if (!isFileResponse) {
-      console.log(
-        "Request URL:",
-        serverAddress + input,
-        "Method:",
-        init.method || "GET",
-        "Status:",
-        response.status,
-        "Response:",
-        jsonResponse
-      );
+      logger.info({
+        url: serverAddress + input,
+        method: init.method || "GET",
+        status: response.status,
+        response: jsonResponse,
+      }, 'API Request');
     } else {
-      console.log(
-        "Request URL:",
-        serverAddress + input,
-        "Method:",
-        init.method || "GET",
-        "Content-Type:",
+      logger.info({
+        url: serverAddress + input,
+        method: init.method || "GET",
         contentType,
-        "Status:",
-        response.status
-      );
+        status: response.status,
+      }, 'File Request');
     }
   }
   if (
@@ -290,14 +283,14 @@ export async function fetchData<T>(
       // Check if response has content before parsing
       const text = await response.text();
       if (!text || text.trim() === "") {
-        console.warn("Empty response received from:", serverAddress + input);
+        logger.warn({ url: serverAddress + input }, 'Empty response received');
         return [] as unknown as T; // Return empty array for empty responses
       }
       try {
         const responseBody = JSON.parse(text);
         return responseBody as Promise<T>;
       } catch (parseError) {
-        console.error("JSON parse error:", parseError, "Response text:", text);
+        logger.error({ parseError, responseText: text }, 'JSON parse error');
         throw new Error(
           `Failed to parse JSON response: ${
             parseError instanceof Error ? parseError.message : "Unknown error"

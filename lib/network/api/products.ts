@@ -1,15 +1,14 @@
 "use server";
 
-import { createApiResource } from "../utils/base";
 import type {
-  Product,
   CreateProductDTO,
+  Product,
   UpdateProductDTO,
 } from "@/lib/types/entities/product";
 import {
-  ApiResponse,
-  PaginatedResponse,
+  ApiResponse
 } from "@/lib/types/subTypes/commonTypes";
+import { createApiResource } from "../utils/base";
 
 // Create the Products API resource - base path is /api/v1/products
 const productsApi = createApiResource<

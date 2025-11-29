@@ -3,6 +3,7 @@ import { ZodSchema } from "zod";
 import { ApiResponse } from "@/lib/types/subTypes/commonTypes";
 import { State } from "@/lib/schema/base";
 import { revalidatePath } from "next/cache";
+import { logger } from "@/lib/logger";
 
 export async function handleAction<T, CreateDTO, UpdateDTO>(
   data: CreateDTO | UpdateDTO | Record<string, string | number | File>,
@@ -21,11 +22,11 @@ export async function handleAction<T, CreateDTO, UpdateDTO>(
         transformedData[key] = value;
       }
     }
-    console.log("Transformed data:", transformedData);
+    logger.debug({ data: transformedData }, 'Transformed form data');
     const parsed = schema.safeParse(transformedData);
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors;
-      console.error("Validation errors:", fieldErrors);
+      logger.warn({ errors: fieldErrors }, 'Validation errors');
       return {
         success: false,
         errors: fieldErrors as Record<string, string[]>,
@@ -47,7 +48,7 @@ export async function handleAction<T, CreateDTO, UpdateDTO>(
       data: returnedData,
     };
   } catch (error) {
-    console.error("Action error:", (error as Error).message);
+    logger.error({ error: (error as Error).message }, 'Action error');
     return {
       success: false,
       errors: { general: [(error as Error).message] },

@@ -6,6 +6,7 @@ import { ZodSchema } from "zod";
 import { downloadFile, fetchData } from "./main";
 import { handleAction } from "./action";
 import { State } from "@/lib/schema/base";
+import { logger } from "@/lib/logger";
 
 /**
  * Generic CRUD API client that can be extended for specific resources
@@ -31,7 +32,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
       )) as ApiResponse<T[]>;
       return response.data;
     } catch (error) {
-      console.error("Error fetching resource list:", error);
+      logger.error({ error, method: 'list' }, 'Error fetching resource list');
       return [];
     }
   }
@@ -56,7 +57,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
       )) as PaginatedResponse<R>;
       return response;
     } catch (error) {
-      console.error("Error fetching paginated resources:", error);
+      logger.error({ error, method: 'listWithPagination', page, limit, search }, 'Error fetching paginated resources');
       return {
         data: [],
         success: false,
@@ -86,7 +87,7 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
       )) as ApiResponse<T>;
       return response.data as T;
     } catch (error) {
-      console.error("Error fetching resource by ID:", error);
+      logger.error({ error, method: 'get', id }, 'Error fetching resource by ID');
       return null as T; // Return null if not found
     }
   }
@@ -140,18 +141,17 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async getAllResource<R>(resourcePath: string): Promise<R[]> {
     try {
+      const normalizedPath = resourcePath.replace(/^\/|\/$/g, "");
+      const url = normalizedPath ? `${this.baseUrl}/${normalizedPath}` : this.baseUrl;
       const response = (await fetchData<ApiResponse<R[]>>(
-        `${this.baseUrl}/${resourcePath.replace(
-          /^\/|\/$/g,
-          ""
-        )}?paginated=false`,
+        `${url}?paginated=false`,
         {
           method: "GET",
         }
       )) as ApiResponse<R[]>;
       return response.data;
     } catch (error) {
-      console.error("Error fetching all resources:", error);
+      logger.error({ error, method: 'getAllResource', resourcePath }, 'Error fetching all resources');
       return [];
     }
   }
@@ -167,18 +167,17 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
     admin: boolean = false
   ): Promise<PaginatedResponse<R>> {
     try {
+      const normalizedPath = resourcePath.replace(/^\/|\/$/g, "");
+      const url = normalizedPath ? `${this.baseUrl}/${normalizedPath}` : this.baseUrl;
       const response = (await fetchData<PaginatedResponse<R>>(
-        `${this.baseUrl}/${resourcePath.replace(
-          /^\/|\/$/g,
-          ""
-        )}?page=${page}&limit=${limit}&search=${search}&paginated=${paginated}&admin=${admin}`,
+        `${url}?page=${page}&limit=${limit}&search=${search}&paginated=${paginated}&admin=${admin}`,
         {
           method: "GET",
         }
       )) as PaginatedResponse<R>;
       return response;
     } catch (error) {
-      console.error("Error fetching all resources:", error);
+      logger.error({ error, method: 'getAllResourcePaginated', resourcePath, page, limit, search }, 'Error fetching all resources');
       return {
         data: [],
         success: false,
@@ -200,15 +199,17 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    */
   async getResource<R>(resourcePath: string): Promise<R> {
     try {
+      const normalizedPath = resourcePath.replace(/^\/|\/$/g, "");
+      const url = normalizedPath ? `${this.baseUrl}/${normalizedPath}` : this.baseUrl;
       const response = (await fetchData<ApiResponse<R>>(
-        `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`,
+        `${url}`,
         {
           method: "GET",
         }
       )) as ApiResponse<R>;
       return response.data as R;
     } catch (error) {
-      console.error("Error fetching resource:", error);
+      logger.error({ error, method: 'getResource', resourcePath }, 'Error fetching resource');
       return null as R; // Return null if not found
     }
   }
@@ -222,8 +223,10 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
     const body = this.haveFiles
       ? this.toFormData(data as Record<string, File>)
       : JSON.stringify(data);
+    const normalizedPath = resourcePath.replace(/^\/|\/$/g, "");
+    const url = normalizedPath ? `${this.baseUrl}/${normalizedPath}` : this.baseUrl;
     return (await fetchData<ApiResponse<T>>(
-      `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`,
+      `${url}`,
       {
         method: "POST",
         body,
@@ -234,8 +237,10 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    * Perform a Delete request to a specific resource path
    */
   async deleteResource<T>(resourcePath: string): Promise<ApiResponse<T>> {
+    const normalizedPath = resourcePath.replace(/^\/|\/$/g, "");
+    const url = normalizedPath ? `${this.baseUrl}/${normalizedPath}` : this.baseUrl;
     return (await fetchData<ApiResponse<T>>(
-      `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`,
+      `${url}`,
       {
         method: "DELETE",
       }
@@ -246,9 +251,9 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
    * Download a file from a specific resource path
    */
   async downloadFileResource(resourcePath: string): Promise<Blob> {
-    const response = await downloadFile(
-      `${this.baseUrl}/${resourcePath.replace(/^\/|\/$/g, "")}`
-    );
+    const normalizedPath = resourcePath.replace(/^\/|\/$/g, "");
+    const url = normalizedPath ? `${this.baseUrl}/${normalizedPath}` : this.baseUrl;
+    const response = await downloadFile(`${url}`);
     return response;
   }
   /**

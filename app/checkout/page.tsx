@@ -6,9 +6,9 @@ import { getCurrentUser } from "@/lib/network/api/auth";
 
 export default async function CheckoutPage() {
   const user = await getCurrentUser();
-  const isAuthenticated = !!user.id;
-  if (!isAuthenticated) {
-    redirect("/login");
+  
+  if (!user) {
+    return null;
   }
 
   const cartData = await getCart(user.id);
