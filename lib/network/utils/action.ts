@@ -3,7 +3,7 @@ import { ZodSchema } from "zod";
 import { ApiResponse } from "@/lib/types/subTypes/commonTypes";
 import { State } from "@/lib/schema/base";
 import { revalidatePath } from "next/cache";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/utils/logger";
 
 export async function handleAction<T, CreateDTO, UpdateDTO>(
   data: CreateDTO | UpdateDTO | Record<string, string | number | File>,

@@ -287,10 +287,12 @@ export default function GetAllOrdersServer({
           <UpdateOrder
             open={editModalOpen}
             setIsOpen={setEditModalOpen}
+            orderData={selectedOrder}
           />
           <DeleteOrder
             open={deleteModalOpen}
             setIsOpen={setDeleteModalOpen}
+            orderId={selectedOrder.id}
           />
         </>
       )}

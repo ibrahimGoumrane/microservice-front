@@ -1,5 +1,8 @@
 "use client";
 
+import CreateUtilisateurForm from "./create";
+import DeleteUtilisateur from "./delete";
+import UpdateUtilisateurForm from "./update";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,26 +12,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ServerDataTable,
-  type ColumnDef,
-} from "@/components/ui/server-data-table";
+import { ColumnDef, ServerDataTable } from "@/components/ui/server-data-table";
 import type { User as Utilisateur } from "@/lib/types/main";
 import { PaginationMeta } from "@/lib/types/subTypes/commonTypes";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Crown,
-  Pencil,
-  Trash2,
-  User,
-  Users
-} from "lucide-react";
+import { ArrowLeft, Crown, Pencil, Trash2, User, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import CreateUtilisateurForm from "./create";
-import DeleteUtilisateur from "./delete";
-import UpdateUtilisateurForm from "./update";
 
 // Animation variants
 const fadeInUp = {
@@ -50,7 +40,6 @@ export default function GetAllUtilisateursServer({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUtilisateur, setSelectedUtilisateur] =
     useState<Utilisateur | null>(null);
-
 
   const handleEditClick = (utilisateur: Utilisateur) => {
     setDeleteModalOpen(false);
@@ -100,7 +89,8 @@ export default function GetAllUtilisateursServer({
           {utilisateur.roles === "ROLE_ADMIN" && (
             <Crown className="mr-1 h-3 w-3" />
           )}
-          {utilisateur.roles}
+          {/* For the base User type, roles is an array of strings. We need to join them. */}
+          {Array.isArray(utilisateur.roles) ? utilisateur.roles.join(', ') : utilisateur.roles}
         </Badge>
       ),
     },
@@ -118,7 +108,7 @@ export default function GetAllUtilisateursServer({
               handleEditClick(utilisateur);
             }}
           >
-            <Pencil className=" w-4" />
+            <Pencil className="w-4 h-4" />
           </Button>
           <Button
             variant="ghost"
@@ -129,7 +119,7 @@ export default function GetAllUtilisateursServer({
             }}
             title={"Delete user"}
           >
-            <Trash2 className=" w-4 text-red-500" />
+            <Trash2 className="w-4 h-4 text-red-500" />
           </Button>
         </div>
       ),
@@ -149,7 +139,7 @@ export default function GetAllUtilisateursServer({
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="sm" asChild>
               <Link href="/admin/">
-                <ArrowLeft className="w-4 w-4 mr-2" />
+                <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour
               </Link>
             </Button>
@@ -204,7 +194,7 @@ export default function GetAllUtilisateursServer({
                   <p className="text-3xl font-bold text-gray-900">
                     {
                       utilisateurs.filter(
-                        (u) => u.roles === "ROLE_ADMIN"
+                        (u) => Array.isArray(u.roles) ? u.roles.includes("ROLE_ADMIN") : u.roles === "ROLE_ADMIN"
                       ).length
                     }
                   </p>

@@ -1,11 +1,11 @@
 "use server";
 
-import { z } from "zod";
 import { State } from "@/lib/schema/base";
 import { revalidatePath } from "next/cache";
 import { createApiResource } from "../network/utils/base";
-import { CreateOrderDTO, Order } from "../types/main";
+import { createOrderSchema, updateOrderSchema } from "../schema/order";
 import { UpdateOrderStatusDTO } from "../types/entities/order";
+import { CreateOrderDTO, Order } from "../types/main";
 
 // Create the Orders API resource - base path is /api/v1/orders
 const ordersApi = createApiResource<
@@ -14,41 +14,6 @@ const ordersApi = createApiResource<
   UpdateOrderStatusDTO
 >("api/v1/orders");
 
-// Validation schemas
-const addressSchema = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  street: z.string().min(1, "Street address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "ZIP code is required"),
-  country: z.string().min(1, "Country is required"),
-});
-
-const createOrderSchema = z.object({
-  customerId: z.number().positive("Customer ID is required"),
-  shippingAddress: addressSchema,
-  orderItems: z.array(
-    z.object({
-      productId: z.number().positive("Product ID is required"),
-      quantity: z.number().int().positive("Quantity must be positive"),
-      price: z.number().positive("Price must be positive"),
-    })
-  ),
-});
-
-const updateOrderSchema = z.object({
-  id: z.number(),
-  status: z
-    .enum([
-      "PENDING",
-      "CONFIRMED",
-      "PROCESSING",
-      "SHIPPED",
-      "DELIVERED",
-      "CANCELLED",
-    ])
-    .optional(),
-});
 
 // Server Actions
 export async function createOrderAction(

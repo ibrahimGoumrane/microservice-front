@@ -7,8 +7,8 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { State } from "@/lib/schemas/base";
-import { getErrorMessage } from "@/lib/utils";
+import { State } from "@/lib/schema/base";
+import { getErrorMessage } from "@/lib/utils/utils";
 import React from "react";
 import { ControllerRenderProps, FieldValues } from "react-hook-form";
 

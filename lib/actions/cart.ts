@@ -1,27 +1,11 @@
 "use server";
 
-import { z } from "zod";
-import { State } from "@/lib/schema/base";
 import * as cartApi from "@/lib/network/api/cart";
+import { State } from "@/lib/schema/base";
 import { revalidatePath } from "next/cache";
+import { addToCartSchema, removeFromCartSchema, updateCartItemSchema } from "../schema/cart";
 
-// Validation schemas
-const addToCartSchema = z.object({
-  userId: z.number().positive("User ID is required"),
-  productId: z.number().positive("Product ID is required"),
-  quantity: z.number().int().positive("Quantity must be positive"),
-});
 
-const updateCartItemSchema = z.object({
-  userId: z.number().positive("User ID is required"),
-  productId: z.number().positive("Product ID is required"),
-  quantity: z.number().int().nonnegative("Quantity must be non-negative"),
-});
-
-const removeFromCartSchema = z.object({
-  userId: z.number().positive("User ID is required"),
-  productId: z.number().positive("Product ID is required"),
-});
 
 // Server Actions
 export async function addToCartAction(

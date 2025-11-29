@@ -255,10 +255,12 @@ export default function GetAllProductsServer({
           <UpdateProduct
             open={editModalOpen}
             setIsOpen={setEditModalOpen}
+            productData={selectedProduct}
           />
           <DeleteProduct
             open={deleteModalOpen}
             setIsOpen={setDeleteModalOpen}
+            productId={selectedProduct.id}
           />
         </>
       )}

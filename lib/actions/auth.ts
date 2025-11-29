@@ -1,31 +1,11 @@
 "use server";
 
-import { z } from "zod";
 import { State } from "@/lib/schema/base";
 import * as authApi from "@/lib/network/api/auth";
 import { redirect } from "next/navigation";
+import { loginSchema, registerSchema } from "../schema/auth";
 
-// Validation schemas
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-const registerSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    roles: z.string().default("ROLE_USER"),
-    confirmPassword: z.string().optional(),
-  })
-  .refine(
-    (data) => !data.confirmPassword || data.password === data.confirmPassword,
-    {
-      message: "Passwords don't match",
-      path: ["confirmPassword"],
-    }
-  );
+  
 
 // Server Actions
 export async function loginAction(

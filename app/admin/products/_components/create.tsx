@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import BaseForm from "@/components/form/base-form";
 import {
   Dialog,
   DialogContent,
@@ -10,24 +10,44 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+import { createProductAction } from "@/lib/actions/products";
+import { createProductRenderedFields, createProductSchema } from "@/lib/schema/product";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function CreateProduct() {
+    const [open, setOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           New Product
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create Product</DialogTitle>
           <DialogDescription>
-            This is a placeholder for the create product form.
+            Fill in the product details below.
           </DialogDescription>
         </DialogHeader>
-        <p>Create product form will be here.</p>
+        <BaseForm
+            initialState={{ success: false, errors: {} }}
+            action={createProductAction}
+            schema={createProductSchema}
+            fields={createProductRenderedFields}
+            submitText="Create Product"
+            loadingText="Creating..."
+            onSuccessToast={(message) => {
+                toast.success(message || "Product created successfully");
+                setOpen(false);
+            }}
+            onErrorToast={(error) => {
+                toast.error(error || "Error creating product");
+            }}
+        />
       </DialogContent>
     </Dialog>
   );

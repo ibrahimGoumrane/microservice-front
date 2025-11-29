@@ -12,7 +12,7 @@ import {
 } from "@/lib/errors/main";
 import { getCookieStore } from "./cookies/utils";
 import { headers } from "next/headers";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/utils/logger";
 
 // Helper function to determine if we're in a secure context
 function isSecureContext() {

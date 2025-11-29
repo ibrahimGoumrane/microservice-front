@@ -27,7 +27,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { File, FileText, Image, Upload, X } from "lucide-react";
 import React, { useCallback, useRef, useState } from "react";
 import { BaseField, BaseFieldProps } from "./base-field";

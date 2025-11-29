@@ -6,7 +6,7 @@ import { ZodSchema } from "zod";
 import { downloadFile, fetchData } from "./main";
 import { handleAction } from "./action";
 import { State } from "@/lib/schema/base";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Generic CRUD API client that can be extended for specific resources

@@ -4,9 +4,9 @@ import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
 import { TextField } from "./text-field";
-import { FieldConfig, State } from "@/lib/schemas/base";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
+import { FieldConfig, State } from "@/lib/schema/base";
 
 interface PasswordFieldProps {
   form: UseFormReturn;
