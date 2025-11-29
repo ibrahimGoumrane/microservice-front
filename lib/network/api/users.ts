@@ -23,9 +23,12 @@ export async function getAllUsers(
   search?: string
 ): Promise<PaginatedResponse<User>> {
   // GET /api/v1/users?page=0&size=10&search=john
-  const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
-  return await usersApi.getResource<PaginatedResponse<User>>(
-    `?page=${page}&size=${size}${searchParam}`
+  return await usersApi.getAllResourcePaginated<User>(
+    '',
+    page,
+    size,
+    search,
+    true
   );
 }
 
