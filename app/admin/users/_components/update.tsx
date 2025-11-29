@@ -7,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Utilisateur } from "@/lib/types/main";
+import { User } from "@/lib/types/main";
 
 interface FormProps {
-  utilisateurData: Utilisateur;
+  utilisateurData: User;
   open?: boolean;
   setIsOpen?: (open: boolean) => void;
 }

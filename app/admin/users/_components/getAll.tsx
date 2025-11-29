@@ -5,33 +5,30 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import {
-  User,
-  Plus,
-  Pencil,
-  RotateCcw,
-  Trash2,
-  ArrowLeft,
-  Shield,
-  Crown,
-  Users,
-} from "lucide-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   ServerDataTable,
   type ColumnDef,
 } from "@/components/ui/server-data-table";
-import CreateUtilisateurForm from "./create";
-import UpdateUtilisateurForm from "./update";
-import DeleteUtilisateur from "./delete";
 import type { User as Utilisateur } from "@/lib/types/main";
+import { PaginationMeta } from "@/lib/types/subTypes/commonTypes";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Crown,
+  Pencil,
+  Trash2,
+  User,
+  Users
+} from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
-import { PaginatedResponse, PaginationMeta } from "@/lib/types/subTypes/commonTypes";
+import CreateUtilisateurForm from "./create";
+import DeleteUtilisateur from "./delete";
+import UpdateUtilisateurForm from "./update";
 
 // Animation variants
 const fadeInUp = {
