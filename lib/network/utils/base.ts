@@ -364,26 +364,48 @@ export class ApiResource<T, CreateDTO = T, UpdateDTO = Partial<T>> {
   /**
    * Helper to convert FormData to a plain object
    */
-  private formDataToObject(formData: FormData): Record<string, string | File> {
-    const data: Record<string, string | File> = {};
-    formData.forEach((value, key) => {
+  private formDataToObject(formData: FormData): Record<string, string | File | File[]> {
+    const data: Record<string, string | File | File[]> = {};
+    const keys = Array.from(formData.keys());
+  
+    for (const key of keys) {
+      const values = formData.getAll(key);
+  
       // Skip empty values
-      if (value !== null && value !== undefined && value !== "") {
-        data[key] = value;
+      if (values.every(value => value === null || value === undefined || value === "")) {
+        continue;
       }
-    });
+  
+      if (values.length > 1) {
+        // If there are multiple values, it's an array of files or strings
+        data[key] = values.filter(v => v instanceof File) as File[]
+      } else if (values[0] instanceof File) {
+        // If it's a single file
+        data[key] = values[0];
+      } else {
+        // If it's a single string value
+        data[key] = values[0] as string;
+      }
+    }
     return data;
   }
   /**
    * Helper to convert a plain object to FormData
    */
-  private toFormData(data: Record<string, string | File | number>): FormData {
+  private toFormData(data: Record<string, string | File | number | File[]>): FormData {
     const formData = new FormData();
     for (const key in data) {
       const value = data[key];
       if (value instanceof File) {
-        formData.append(key, value);
-      } else if (value !== null && value !== undefined) {
+        formData.append(key, value, value.name);
+      } else if (Array.isArray(value)) {
+        for (const item of value) {
+          if (item instanceof File) {
+            formData.append(key, item, item.name);
+          }
+        }
+      }
+      else if (value !== null && value !== undefined) {
         formData.append(key, String(value));
       }
     }

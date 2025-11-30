@@ -29,7 +29,7 @@ interface BaseFormProps {
   cancelText?: string | React.ReactNode;
   handleCancel?: () => void;
   actionType?: "create" | "update" | "delete";
-  defaultValues?: Record<string, string | number>;
+  defaultValues?: Record<string, any>;
   onSuccessToast?: (data: string) => void;
   onErrorToast?: (error: string) => void;
   children?: React.ReactNode;
@@ -63,7 +63,7 @@ function BaseForm({
         acc[field.name] = defaultValues[field.name] || "";
       }
       return acc;
-    }, {} as Record<string, string | number | null>),
+    }, {} as Record<string, any>),
   });
   //Log the form state for debugging
   // const formValues = form.watch();
@@ -89,7 +89,7 @@ function BaseForm({
   }, [state.errors]);
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className=" max-h-[800px] overflow-y-auto space-y-4 p-4">
         {/* General error message */}
         {!onErrorToast &&
           state.errors &&
@@ -142,6 +142,7 @@ function BaseForm({
                           accept={fieldConfig.accept}
                           multiple={fieldConfig.multiple}
                           variant={fieldConfig.variant}
+                          initialFiles={defaultValues[fieldConfig.name]}
                         />
                       );
                     case "textarea":

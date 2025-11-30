@@ -77,7 +77,7 @@ export function CartPageClient({ cart, isAuthenticated }: CartPageClientProps) {
                 <div className="flex gap-4">
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <Image
-                      src={getImageUrl(item.product.imageUrl)}
+                      src={getImageUrl(item.product.mainImage)}
                       alt={item.product.name}
                       fill
                       className="object-cover"

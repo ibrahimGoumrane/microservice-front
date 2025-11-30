@@ -30,7 +30,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
-            src={getImageUrl(product.imageUrl)}
+            src={getImageUrl(product.mainImage)}
             alt={product.name}
             fill
             className="object-cover transition-transform group-hover:scale-105"

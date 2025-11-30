@@ -6,7 +6,8 @@ export interface Product {
   description: string;
   price: number;
   category: string;
-  imageUrl: string;
+  mainImage: string;
+  secondaryImages?: string[];
   stockQuantity: number;
   active: boolean;
   rating?: number;
@@ -21,7 +22,8 @@ export interface CreateProductDTO {
   stockQuantity: number;
   active?: boolean;
   rating?: number;
-  image: File;
+  mainImage: File;
+  secondaryImages?: File[];
 }
 
 export interface UpdateProductDTO {
@@ -32,7 +34,8 @@ export interface UpdateProductDTO {
   stockQuantity?: number;
   active?: boolean;
   rating?: number;
-  image?: File;
+  mainImage?: File;
+  secondaryImages?: File[];
 }
 
 export interface ProductResponse {
@@ -41,7 +44,8 @@ export interface ProductResponse {
   description: string;
   price: number;
   category: string;
-  imageUrl: string;
+  mainImage: string;
+  secondaryImages?: string[];
   stockQuantity: number;
   active: boolean;
   rating?: number;

@@ -25,7 +25,7 @@ import {
   ServerDataTable,
   type ColumnDef,
 } from "@/components/ui/server-data-table";
-import CreateOrder from "./create";
+// import CreateOrder from "./create";
 import UpdateOrder from "./update";
 import DeleteOrder from "./delete";
 import type { Order } from "@/lib/types/main";
@@ -208,7 +208,7 @@ export default function GetAllOrdersServer({
               </p>
             </div>
           </div>
-          <CreateOrder />
+          {/* <CreateOrder /> */}
         </div>
       </motion.div>
 

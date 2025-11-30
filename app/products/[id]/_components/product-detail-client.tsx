@@ -36,6 +36,7 @@ export function ProductDetailClient({
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [state, formAction] = useActionState(addToCartAction, initialState);
+  const [selectedImage, setSelectedImage] = useState(product.mainImage);
 
   const handleAddToCart = async () => {
     const formData = new FormData();
@@ -60,23 +61,52 @@ export function ProductDetailClient({
       </Button>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
-          <Image
-            src={getImageUrl(product.imageUrl)}
-            alt={product.name}
-            fill
-            className="object-cover"
-          />
-          {product.stockQuantity < 10 && product.stockQuantity > 0 && (
-            <Badge className="absolute left-4 top-4 bg-accent text-accent-foreground">
-              Only {product.stockQuantity} left
-            </Badge>
-          )}
-          {product.stockQuantity === 0 && (
-            <Badge className="absolute left-4 top-4" variant="destructive">
-              Out of Stock
-            </Badge>
-          )}
+      <div>
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+            <Image
+              src={getImageUrl(selectedImage)}
+              alt={product.name}
+              fill
+              className="object-cover"
+            />
+            {product.stockQuantity < 10 && product.stockQuantity > 0 && (
+              <Badge className="absolute left-4 top-4 bg-accent text-accent-foreground">
+                Only {product.stockQuantity} left
+              </Badge>
+            )}
+            {product.stockQuantity === 0 && (
+              <Badge className="absolute left-4 top-4" variant="destructive">
+                Out of Stock
+              </Badge>
+            )}
+          </div>
+          <div className="mt-4 grid grid-cols-5 gap-4">
+            <div
+                className={`relative aspect-square cursor-pointer overflow-hidden rounded-md ${selectedImage === product.mainImage ? "ring-2 ring-primary" : ""}`}
+                onClick={() => setSelectedImage(product.mainImage)}
+            >
+                <Image
+                    src={getImageUrl(product.mainImage)}
+                    alt="Main product image"
+                    fill
+                    className="object-cover"
+                />
+            </div>
+            {product.secondaryImages?.map((image, index) => (
+              <div
+                key={index}
+                className={`relative aspect-square cursor-pointer overflow-hidden rounded-md ${selectedImage === image ? "ring-2 ring-primary" : ""}`}
+                onClick={() => setSelectedImage(image)}
+              >
+                <Image
+                  src={getImageUrl(image)}
+                  alt={`Secondary product image ${index + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col">
@@ -176,7 +206,7 @@ export function ProductDetailClient({
                 <div className="overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-lg">
                   <div className="relative aspect-square bg-muted">
                     <Image
-                      src={getImageUrl(p.imageUrl)}
+                      src={getImageUrl(p.mainImage)}
                       alt={p.name}
                       fill
                       className="object-cover transition-transform group-hover:scale-105"

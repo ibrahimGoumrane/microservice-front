@@ -13,6 +13,8 @@ import { updateProductRenderedFields, updateProductSchema } from "@/lib/schema/p
 import { Product } from "@/lib/types/main";
 import { toast } from "sonner";
 
+import { getImageUrl } from "@/lib/utils/image";
+
 interface UpdateProductProps {
   open: boolean;
   setIsOpen: (open: boolean) => void;
@@ -29,6 +31,8 @@ export default function UpdateProduct({ open, setIsOpen, productData }: UpdatePr
         stockQuantity: productData.stockQuantity,
         active: productData.active ? "true" : "false", // Convert boolean to string for radio field
         rating: productData.rating,
+        mainImage: productData.mainImage ? getImageUrl(productData.mainImage) : undefined,
+        secondaryImages: productData.secondaryImages ? productData.secondaryImages.map(img => getImageUrl(img)) : [],
     };
 
   return (

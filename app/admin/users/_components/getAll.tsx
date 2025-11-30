@@ -1,6 +1,5 @@
 "use client";
 
-import CreateUtilisateurForm from "./create";
 import DeleteUtilisateur from "./delete";
 import UpdateUtilisateurForm from "./update";
 import { Badge } from "@/components/ui/badge";
@@ -152,7 +151,6 @@ export default function GetAllUtilisateursServer({
               </p>
             </div>
           </div>
-          <CreateUtilisateurForm />
         </div>
       </motion.div>
 

@@ -14,16 +14,14 @@ export const createProductSchema = z.object({
         z.number().positive("Price must be a positive number")
     ),
     category: z.string().min(1, "Category is required"),
-    image: z.instanceof(File, { message: "Image file is required" }), // File input handled separately in BaseForm
+    mainImage: z.instanceof(File, { message: "Image file is required" }), // File input handled separately in BaseForm
+    secondaryImages: z.array(z.instanceof(File, { message: "Image file is required" })).optional(), // File input handled separately in BaseForm
     stockQuantity: z.preprocess(
         (val) => Number(val),
         z.number().int().nonnegative("Stock must be a non-negative integer")
     ),
     active: z.boolean().default(true),
-    rating: z.preprocess(
-        (val) => Number(val),
-        z.number().min(0).max(5).optional()
-    ),
+    rating: z.number().min(0).max(5).optional(),
 });
 
 export const updateProductSchema = z.object({
@@ -35,16 +33,14 @@ export const updateProductSchema = z.object({
         z.number().positive("Price must be a positive number").optional()
     ),
     category: z.string().min(1, "Category is required").optional(),
-    image: z.instanceof(File).optional(), // File input handled separately in BaseForm
+    mainImage: z.instanceof(File).optional(), // File input handled separately in BaseForm
+    secondaryImages: z.array(z.instanceof(File)).optional(), // File input handled separately in BaseForm
     stockQuantity: z.preprocess(
         (val) => Number(val),
         z.number().int().nonnegative("Stock must be a non-negative integer").optional()
     ),
     active: z.boolean().optional(),
-    rating: z.preprocess(
-        (val) => Number(val),
-        z.number().min(0).max(5).optional()
-    ),
+    rating: z.number().min(0).max(5).optional(),
 });
 
 export const deleteProductSchema = z.object({
@@ -101,12 +97,21 @@ export const createProductRenderedFields: FieldConfig[] = [
         required: true,
     },
     {
-        name: "image",
-        label: "Product Image",
+        name: "mainImage",
+        label: "Main Product Image",
         type: "file",
         required: true,
         accept: "image/*",
         variant: "dropzone",
+    },
+    {
+        name: "secondaryImages",
+        label: "Secondary Product Images",
+        type: "file",
+        required: false,
+        accept: "image/*",
+        variant: "dropzone",
+        multiple: true
     },
     // Active and Rating can be handled with default values or specific fields if needed
 ];
@@ -162,12 +167,21 @@ export const updateProductRenderedFields: FieldConfig[] = [
         required: false,
     },
     {
-        name: "image",
-        label: "Product Image",
+        name: "mainImage",
+        label: "Main Product Image",
         type: "file",
         required: false,
         accept: "image/*",
         variant: "dropzone",
+    },
+    {
+        name: "secondaryImages",
+        label: "Secondary Product Images",
+        type: "file",
+        required: false,
+        accept: "image/*",
+        variant: "dropzone",
+        multiple: true,
     },
     {
         name: "active",

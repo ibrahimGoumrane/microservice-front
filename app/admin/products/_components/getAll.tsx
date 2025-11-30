@@ -86,7 +86,7 @@ export default function GetAllProductsServer({
           <div className="flex items-center gap-3">
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
               <Image
-                src={getImageUrl(product.imageUrl)}
+                src={getImageUrl(product.mainImage)}
                 alt={product.name}
                 fill
                 className="object-cover"

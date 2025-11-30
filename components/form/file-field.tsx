@@ -39,6 +39,7 @@ interface FileFieldProps extends BaseFieldProps {
   maxFiles?: number; // Maximum number of files (for multiple)
   showPreview?: boolean; // Show file previews
   variant?: "default" | "dropzone"; // Visual variant
+  initialFiles?: string | string[]; // Initial files to display (URLs)
 }
 
 export function FileField({
@@ -57,12 +58,22 @@ export function FileField({
   maxFiles,
   showPreview = true,
   variant = "default",
+  initialFiles,
   ...props
 }: FileFieldProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [existingFiles, setExistingFiles] = useState<string[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (initialFiles) {
+      const files = Array.isArray(initialFiles) ? initialFiles : [initialFiles];
+      // Filter out empty strings or nulls just in case
+      setExistingFiles(files.filter(f => !!f));
+    }
+  }, [initialFiles]);
 
   // Format file size
   const formatFileSize = (bytes: number): string => {
@@ -127,9 +138,13 @@ export function FileField({
     });
 
     // Check max files
-    if (maxFiles && validFiles.length > maxFiles) {
-      newErrors.push(`Maximum ${maxFiles} files allowed`);
-      return { valid: validFiles.slice(0, maxFiles), errors: newErrors };
+    if (maxFiles) {
+        const totalFiles = validFiles.length + existingFiles.length + (multiple ? selectedFiles.length : 0);
+        if (totalFiles > maxFiles) {
+             newErrors.push(`Maximum ${maxFiles} files allowed`);
+             // We might need to slice validFiles to fit, but for now just error
+             return { valid: [], errors: newErrors };
+        }
     }
 
     return { valid: validFiles, errors: newErrors };
@@ -145,20 +160,24 @@ export function FileField({
       if (valid.length > 0) {
         const newFiles = multiple ? [...selectedFiles, ...valid] : valid;
 
-        // Respect maxFiles limit
-        const finalFiles = maxFiles ? newFiles.slice(0, maxFiles) : newFiles;
-
-        setSelectedFiles(finalFiles);
-
-        // Update form field
-        if (multiple) {
-          field.onChange(finalFiles);
+        // Respect maxFiles limit (considering existing files)
+        // Note: This logic is a bit simplified. If maxFiles is strict, we should account for existingFiles.
+        // But usually existingFiles are "already there".
+        // If multiple is false, we replace everything (including existing visual preview logic if we want).
+        
+        if (!multiple) {
+            // If single file mode, selecting a new file replaces the existing one visually
+            setExistingFiles([]); 
+            setSelectedFiles(valid.slice(0, 1));
+            field.onChange(valid[0]);
         } else {
-          field.onChange(finalFiles[0] || null);
+             const finalFiles = maxFiles ? newFiles.slice(0, maxFiles) : newFiles;
+             setSelectedFiles(finalFiles);
+             field.onChange(finalFiles);
         }
       }
     },
-    [field, multiple, selectedFiles, maxFiles, validateFiles]
+    [field, multiple, selectedFiles, maxFiles, validateFiles, existingFiles]
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,17 +213,24 @@ export function FileField({
     [disabled, processFiles]
   );
 
-  const removeFile = (index: number) => {
-    const newFiles = selectedFiles.filter((_, i) => i !== index);
-    setSelectedFiles(newFiles);
+  const removeFile = (index: number, type: 'selected' | 'existing') => {
+    if (type === 'selected') {
+        const newFiles = selectedFiles.filter((_, i) => i !== index);
+        setSelectedFiles(newFiles);
 
-    if (multiple) {
-      field.onChange(newFiles);
+        if (multiple) {
+        field.onChange(newFiles);
+        } else {
+        field.onChange(null);
+        if (inputRef.current) {
+            inputRef.current.value = "";
+        }
+        }
     } else {
-      field.onChange(null);
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
+        const newExisting = existingFiles.filter((_, i) => i !== index);
+        setExistingFiles(newExisting);
+        // Note: We don't update field.onChange here because existing files aren't in the form value (File object).
+        // If we needed to track deletions, we'd need a separate callback or hidden field.
     }
   };
 
@@ -215,6 +241,10 @@ export function FileField({
   // Helper function to check if file is an image
   const isImageFile = (file: File): boolean => {
     return file.type.startsWith("image/");
+  };
+  
+  const isImageUrl = (url: string): boolean => {
+      return url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) !== null || true; // Assume true for now if it's a URL in an image field
   };
 
   // Image preview component
@@ -243,6 +273,18 @@ export function FileField({
     );
   };
 
+  const ExistingImagePreview = ({ url }: { url: string }) => {
+      return (
+        <div className="w-10 h-10 rounded border overflow-hidden bg-muted">
+            <img
+            src={url}
+            alt="Existing file"
+            className="w-full h-full object-cover"
+            />
+        </div>
+      );
+  };
+
   if (variant === "default") {
     return (
       <BaseField
@@ -265,7 +307,8 @@ export function FileField({
           className={icon ? "pl-10" : ""}
           {...props}
         />
-        {required && selectedFiles.length === 0 && (
+        {/* Simple list for default variant if needed, or just rely on input's own display */}
+        {required && selectedFiles.length === 0 && existingFiles.length === 0 && (
           <p className="text-destructive">This field is required</p>
         )}
       </BaseField>
@@ -304,11 +347,11 @@ export function FileField({
             dragActive && "border-primary bg-primary/10 scale-[1.02]",
             disabled && "opacity-50 cursor-not-allowed",
             errors.length > 0 && "border-destructive/50 bg-destructive/5",
-            selectedFiles.length > 0 &&
+            (selectedFiles.length > 0 || existingFiles.length > 0) &&
               !dragActive &&
               "border-success/50 bg-success/5",
             // Add required field styling when no files are selected
-            required && selectedFiles.length === 0 && "border-destructive/30",
+            required && selectedFiles.length === 0 && existingFiles.length === 0 && "border-destructive/30",
             className
           )}
           onDragEnter={handleDrag}
@@ -324,7 +367,7 @@ export function FileField({
               openFileDialog();
             }
           }}
-          aria-label={`File upload area. ${placeholder}. ${selectedFiles.length} files selected.`}
+          aria-label={`File upload area. ${placeholder}. ${selectedFiles.length + existingFiles.length} files selected.`}
           aria-required={required}
         >
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -342,7 +385,7 @@ export function FileField({
             <div className="space-y-2">
               <p className="text-sm font-medium">
                 {dragActive ? "Drop files here" : placeholder}
-                {required && selectedFiles.length === 0 && (
+                {required && selectedFiles.length === 0 && existingFiles.length === 0 && (
                   <span className="text-destructive ml-1">*</span>
                 )}
               </p>
@@ -359,7 +402,7 @@ export function FileField({
                     }}
                     className={cn(
                       required &&
-                        selectedFiles.length === 0 &&
+                        selectedFiles.length === 0 && existingFiles.length === 0 &&
                         "border-destructive/50 text-destructive"
                     )}
                   >
@@ -373,7 +416,7 @@ export function FileField({
                         {accept && maxSize && " • "}
                         {maxSize && `Max size: ${formatFileSize(maxSize)}`}
                       </p>
-                      {required && selectedFiles.length === 0 && (
+                      {required && selectedFiles.length === 0 && existingFiles.length === 0 && (
                         <p className="text-xs text-destructive">
                           This field is required
                         </p>
@@ -398,15 +441,51 @@ export function FileField({
         )}
 
         {/* File previews */}
-        {showPreview && selectedFiles.length > 0 && (
+        {showPreview && (selectedFiles.length > 0 || existingFiles.length > 0) && (
           <div className="space-y-2">
             <p className="text-sm font-medium">
-              Selected files ({selectedFiles.length}):
+              Selected files ({selectedFiles.length + existingFiles.length}):
             </p>
             <div className="space-y-2 max-h-32 overflow-y-auto">
+                {/* Existing Files */}
+                {existingFiles.map((url, index) => (
+                <div
+                  key={`existing-${index}`}
+                  className="flex items-center justify-between p-2 bg-accent rounded-md text-sm"
+                >
+                  <div className="flex items-center space-x-2 min-w-0 flex-1">
+                    <ExistingImagePreview url={url} />
+                    <div className="min-w-0 flex-1">
+                      <span className="truncate font-medium block">
+                        Existing File {index + 1}
+                      </span>
+                      <span className="text-muted-foreground text-xs">
+                        Stored on server
+                      </span>
+                    </div>
+                  </div>
+
+                  {!disabled && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile(index, 'existing');
+                      }}
+                      className="ml-2 h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+
+              {/* New Selected Files */}
               {selectedFiles.map((file, index) => (
                 <div
-                  key={index}
+                  key={`selected-${index}`}
                   className="flex items-center justify-between p-2 bg-accent rounded-md text-sm"
                 >
                   <div className="flex items-center space-x-2 min-w-0 flex-1">
@@ -432,7 +511,7 @@ export function FileField({
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeFile(index);
+                        removeFile(index, 'selected');
                       }}
                       className="ml-2 h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
                     >

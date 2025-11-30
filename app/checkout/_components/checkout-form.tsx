@@ -199,7 +199,7 @@ export function CheckoutForm({ cart, cartTotal }: CheckoutFormProps) {
                 <div key={item.product.id} className="flex gap-3">
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <Image
-                      src={getImageUrl(item.product.imageUrl)}
+                      src={getImageUrl(item.product.mainImage)}
                       alt={item.product.name}
                       fill
                       className="object-cover"
