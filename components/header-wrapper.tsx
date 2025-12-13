@@ -9,7 +9,7 @@ export async function HeaderWrapper() {
 
   if (user?.id) {
     const cart = await getCart(user.id);
-    cartCount = cart.itemCount || 0;
+    cartCount = cart?.itemCount || 0;
   }
 
 

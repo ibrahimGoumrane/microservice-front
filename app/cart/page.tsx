@@ -10,7 +10,7 @@ export default async function CartPage() {
   const authenticated = !!currentUser;
 
   const cartData = authenticated
-    ? await getCart(currentUser.id)
+    ? (await getCart(currentUser.id)) || { items: [], total: 0, itemCount: 0 }
     : { items: [], total: 0, itemCount: 0 };
 
   if (authenticated) {

@@ -43,7 +43,7 @@ export function CartPageClient({ cart, isAuthenticated }: CartPageClientProps) {
     await removeAction(formData);
   };
 
-  if (cart.items.length === 0) {
+  if (!cart?.items || cart.items.length === 0) {
     return (
       <div className="container mx-auto flex flex-col items-center justify-center px-4 py-16">
         <div className="rounded-full bg-muted p-6">

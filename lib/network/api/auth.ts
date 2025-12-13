@@ -25,21 +25,8 @@ export async function login(
     credentials
   );
 
-  // 💡 FIX: Set the token cookie upon successful login
-  if (response.success && response.data?.token) {
-    const cookieStore = await getCookieStore();
-    
-    // Check for expiration in the response if provided, otherwise set a max age.
-    // Assuming the token is valid for 1 hour (3600 seconds)
-    const expirationSeconds = 3600; 
-
-    cookieStore.set("token", response.data.token, {
-      httpOnly: true, // IMPORTANT for security
-      secure: process.env.NODE_ENV === "production",
-      maxAge: expirationSeconds, 
-      path: "/",
-    });
-  }
+  // Duplicate cookie setting logic removed. Relying on main.ts interceptor.
+  // if (response.success && response.data?.token) { ... }
 
   return response;
 }
