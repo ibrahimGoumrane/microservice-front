@@ -11,6 +11,8 @@ export interface Product {
   stockQuantity: number;
   active: boolean;
   rating?: number;
+  averageRating: number; // NEW: Average rating (0-5)
+  reviewCount: number;   // NEW: Total number of reviews
 }
 
 // DTOs for Product operations
@@ -49,4 +51,6 @@ export interface ProductResponse {
   stockQuantity: number;
   active: boolean;
   rating?: number;
+  averageRating: number;
+  reviewCount: number;
 }

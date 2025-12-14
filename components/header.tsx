@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { logout as logoutUser } from "@/lib/network/api/auth";
 import type { User as UserType } from "@/lib/types/main";
+import { ModeToggle } from "@/components/mode-toggle";
 
 interface HeaderProps {
   user: UserType | null;
@@ -51,29 +52,29 @@ export function Header({ user, cartCount, isAuthenticated }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b backdrop-blur bg-vault-charcoal border-vault-slate">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">
-                S
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded transition-all group-hover:shadow-[0_0_10px_rgba(0,230,118,0.3)] bg-vault-mint">
+              <span className="text-lg font-bold font-[family-name:var(--font-montserrat)] text-vault-charcoal">
+                V
               </span>
             </div>
-            <span className="text-xl font-bold">ShopHub</span>
+            <span className="text-xl font-bold font-[family-name:var(--font-montserrat)] tracking-tight text-white">Vault</span>
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex">
             <Link
               href="/products"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm font-medium transition-colors hover:text-vault-mint text-white/80 hover:text-white"
             >
               Products
             </Link>
             {isAuthenticated && (user?.roles === "ROLE_ADMIN" || user?.roles?.includes?.("ROLE_ADMIN")) && (
               <Link
                 href="/admin"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="text-sm font-medium transition-colors hover:text-vault-mint text-white/80 hover:text-white"
               >
                 Admin
               </Link>
@@ -97,11 +98,12 @@ export function Header({ user, cartCount, isAuthenticated }: HeaderProps) {
         </form>
 
         <div className="flex items-center gap-2">
+          <ModeToggle />
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-white hover:text-vault-mint hover:bg-white/10">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full font-bold text-xs bg-vault-mint text-vault-charcoal">
                   {cartCount}
                 </span>
               )}
@@ -112,7 +114,7 @@ export function Header({ user, cartCount, isAuthenticated }: HeaderProps) {
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="text-white hover:text-vault-mint hover:bg-white/10">
                   <User className="h-5 w-5" />
                   <span className="sr-only">User menu</span>
                 </Button>

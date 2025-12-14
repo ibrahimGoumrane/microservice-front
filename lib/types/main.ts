@@ -5,3 +5,4 @@ export type { CartItem, Cart, AddToCartDTO, UpdateCartItemDTO, RemoveFromCartDTO
 export type { Order, CreateOrderDTO, UpdateOrderDTO, OrderResponse } from "./entities/order";
 export type { LoginDTO, RegisterDTO, AuthResponse, LogoutResponse, RefreshTokenResponse } from "./entities/auth";
 export type { Address, CreateAddressDTO, UpdateAddressDTO, AddressResponse, AddressListResponse } from "./entities/address";
+export type { Review, CreateReviewDTO, ReviewsResponse, ReviewResponse } from "./entities/review";

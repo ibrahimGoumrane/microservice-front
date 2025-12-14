@@ -5,7 +5,8 @@ import Link from "next/link";
 import type { Product } from "@/lib/types/main";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Star, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
+import { StarRating } from "@/components/star-rating";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils/image";
 
@@ -19,7 +20,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     if (onAddToCart) {
       onAddToCart(product);
     } else {
-      // FIX: Redirect to product details instead of fake add
+      // Redirect to product details
       window.location.href = `/products/${product.id}`;
     }
   };
@@ -57,10 +58,10 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           <h3 className="mt-1 font-semibold line-clamp-1 group-hover:text-primary">
             {product.name}
           </h3>
-          <div className="mt-2 flex items-center gap-1">
-            <Star className="h-4 w-4 fill-chart-3 text-chart-3" />
-            <span className="text-sm text-muted-foreground">
-              {product.rating || 0}
+          <div className="mt-2 flex items-center gap-2">
+            <StarRating rating={product.averageRating || 0} size="sm" />
+            <span className="text-xs text-muted-foreground">
+              ({product.reviewCount || 0})
             </span>
           </div>
         </Link>

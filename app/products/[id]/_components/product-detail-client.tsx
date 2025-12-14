@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
-  Star,
   Minus,
   Plus,
   ShoppingCart,
@@ -17,8 +16,10 @@ import {
   Check,
 } from "lucide-react";
 import { addToCartAction } from "@/lib/actions/cart";
-import type { Product } from "@/lib/types/main";
+import type { Product, ReviewsResponse } from "@/lib/types/main";
 import { getImageUrl } from "@/lib/utils/image";
+import { ReviewsList } from "@/components/reviews-list";
+import { StarRating } from "@/components/star-rating";
 
 const initialState = {
   success: false,
@@ -28,11 +29,15 @@ const initialState = {
 interface ProductDetailClientProps {
   product: Product;
   relatedProducts: Product[];
+  reviewsData: ReviewsResponse["data"];
+  isAuthenticated: boolean;
 }
 
 export function ProductDetailClient({
   product,
   relatedProducts,
+  reviewsData,
+  isAuthenticated,
 }: ProductDetailClientProps) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -48,75 +53,66 @@ export function ProductDetailClient({
     if (state.success) {
       setAdded(true);
       toast.success("Added to cart", {
-        description: `${product.name} has been added to your cart.`,
+        description: `${quantity} ${quantity === 1 ? "item" : "items"} added to your cart`,
       });
       setTimeout(() => setAdded(false), 2000);
-    } else if (state.errors?.userId) {
-      toast.error("Authentication required", {
-        description: "Please log in to add items to your cart.",
-        action: {
-          label: "Login",
-          onClick: () => router.push("/login"),
-        }
-      });
     } else if (state.errors?.general) {
-      toast.error("Error", {
-        description: state.errors.general[0]
-      });
+      toast.error(state.errors.general[0]);
     }
-  }, [state, product.name, router]);
+  }, [state, quantity]);
 
-  // 4. FIX: simple wrapper around formAction
-  const handleAddToCart = async () => {
-    const formData = new FormData();
-    formData.append("productId", product.id.toString());
-    formData.append("quantity", quantity.toString());
-
+  const handleAddToCart = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    // 4. FIX: Wrap formAction in startTransition
     startTransition(() => {
       formAction(formData);
     });
+  };
+
+  const incrementQuantity = () => {
+    if (quantity < product.stockQuantity) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <Button
         variant="ghost"
-        size="sm"
-        className="mb-6"
         onClick={() => router.back()}
+        className="mb-6 gap-2"
       >
-        <ArrowLeft className="mr-2 h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" />
         Back
       </Button>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div>
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+      <div className="grid gap-8 md:grid-cols-2">
+        {/* Image Gallery */}
+        <div className="space-y-4">
+          <div className="relative aspect-square overflow-hidden rounded-xl border bg-muted">
             <Image
               src={getImageUrl(selectedImage)}
               alt={product.name}
               fill
               className="object-cover"
+              priority
             />
-            {product.stockQuantity < 10 && product.stockQuantity > 0 && (
-              <Badge className="absolute left-4 top-4 bg-accent text-accent-foreground">
-                Only {product.stockQuantity} left
-              </Badge>
-            )}
-            {product.stockQuantity === 0 && (
-              <Badge className="absolute left-4 top-4" variant="destructive">
-                Out of Stock
-              </Badge>
-            )}
           </div>
-          <div className="mt-4 grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-5 gap-2">
             <div
               className={`relative aspect-square cursor-pointer overflow-hidden rounded-md ${selectedImage === product.mainImage ? "ring-2 ring-primary" : ""}`}
               onClick={() => setSelectedImage(product.mainImage)}
             >
               <Image
                 src={getImageUrl(product.mainImage)}
-                alt="Main product image"
+                alt={product.name}
                 fill
                 className="object-cover"
               />
@@ -140,25 +136,16 @@ export function ProductDetailClient({
           </div>
         </div>
 
-        <div className="flex flex-col">
+        {/* Product Info */}
+        <div>
           <div>
             <p className="text-sm text-muted-foreground">{product.category}</p>
             <h1 className="mt-2 text-3xl font-bold">{product.name}</h1>
 
             <div className="mt-4 flex items-center gap-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-5 w-5 ${i < Math.floor(product.rating || 0)
-                      ? "fill-chart-3 text-chart-3"
-                      : "fill-muted text-muted"
-                      }`}
-                  />
-                ))}
-              </div>
+              <StarRating rating={product.averageRating || 0} size="md" />
               <span className="text-sm text-muted-foreground">
-                ({product.rating || 0} rating)
+                ({product.reviewCount || 0} {product.reviewCount === 1 ? 'review' : 'reviews'})
               </span>
             </div>
 
@@ -172,45 +159,48 @@ export function ProductDetailClient({
           </div>
 
           <div className="mt-8 space-y-4">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium">Quantity:</span>
-              <div className="flex items-center rounded-lg border">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    setQuantity((q) => Math.min(product.stockQuantity, q + 1))
-                  }
-                  disabled={quantity >= product.stockQuantity}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            <form onSubmit={handleAddToCart}>
+              <input type="hidden" name="productId" value={product.id} />
+              <input type="hidden" name="quantity" value={quantity} />
 
-            <div className="flex gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center rounded-md border">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={decrementQuantity}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center">{quantity}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={incrementQuantity}
+                    disabled={quantity >= product.stockQuantity}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {product.stockQuantity > 0 && (
+                  <Badge variant="outline" className="gap-1">
+                    <Check className="h-3 w-3" />
+                    In Stock
+                  </Badge>
+                )}
+              </div>
+
               <Button
+                type="submit"
                 size="lg"
-                className="flex-1"
-                onClick={handleAddToCart}
-                // 4. FIX (Recommended): Use isPending for visual state
-                disabled={product.stockQuantity === 0 || added || isPending}
+                className="mt-4 w-full"
+                disabled={product.stockQuantity === 0 || isPending}
               >
-                {isPending ? (
-                  <>
-                    <ShoppingCart className="mr-2 h-5 w-5 animate-spin" />
-                    Adding...
-                  </>
-                ) : added ? (
+                {added ? (
                   <>
                     <Check className="mr-2 h-5 w-5" />
                     Added to Cart
@@ -222,7 +212,7 @@ export function ProductDetailClient({
                   </>
                 )}
               </Button>
-            </div>
+            </form>
 
             <p className="text-sm text-muted-foreground">
               {product.stockQuantity > 0
@@ -232,6 +222,23 @@ export function ProductDetailClient({
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <section className="mt-16">
+        <h2 className="text-2xl font-bold mb-2">Customer Reviews</h2>
+        <div className="flex items-center gap-3 mb-6">
+          <StarRating rating={product.averageRating || 0} size="lg" showNumber />
+          <span className="text-muted-foreground">({product.reviewCount || 0} reviews)</span>
+        </div>
+        <ReviewsList
+          productId={product.id}
+          initialReviews={reviewsData.reviews}
+          totalReviews={reviewsData.totalReviews}
+          totalPages={reviewsData.totalPages}
+          currentPage={reviewsData.currentPage}
+          isAuthenticated={isAuthenticated}
+        />
+      </section>
 
       {relatedProducts.length > 0 && (
         <section className="mt-16">

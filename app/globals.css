@@ -1,104 +1,21 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Import Vault Design System Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
 
-:root {
-  /* Premium Light Theme */
-  --background: oklch(0.99 0.005 260);
-  /* Crisp off-white */
-  --foreground: oklch(0.14 0.02 260);
-  /* Deep charcoal */
+@theme {
+  --color-vault-charcoal: #121212;
+  --color-vault-mint: #00E676;
+  --color-vault-slate: #2C3E50;
+  --color-vault-light-grey: #F4F6F8;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.14 0.02 260);
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.14 0.02 260);
-
-  /* Primary: Vibrant Indigo */
-  --primary: oklch(0.55 0.22 270);
-  --primary-foreground: oklch(0.98 0 0);
-
-  --secondary: oklch(0.96 0.01 260);
-  --secondary-foreground: oklch(0.55 0.22 270);
-
-  --muted: oklch(0.96 0.01 260);
-  --muted-foreground: oklch(0.5 0.02 260);
-
-  --accent: oklch(0.94 0.02 260);
-  --accent-foreground: oklch(0.55 0.22 270);
-
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.98 0 0);
-
-  --border: oklch(0.92 0.01 260);
-  --input: oklch(0.92 0.01 260);
-  --ring: oklch(0.55 0.22 270);
-
-  --radius: 0.75rem;
-  /* Slightly more rounded for modern feel */
-
-  --sidebar: oklch(0.99 0.005 260);
-  --sidebar-foreground: oklch(0.14 0.02 260);
-  --sidebar-primary: oklch(0.55 0.22 270);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.96 0.01 260);
-  --sidebar-accent-foreground: oklch(0.55 0.22 270);
-  --sidebar-border: oklch(0.92 0.01 260);
-  --sidebar-ring: oklch(0.55 0.22 270);
-}
-
-.dark {
-  /* Premium Dark Theme - Deep Obsidian */
-  --background: oklch(0.12 0.03 260);
-  --foreground: oklch(0.95 0.01 260);
-
-  --card: oklch(0.15 0.03 260);
-  --card-foreground: oklch(0.95 0.01 260);
-
-  --popover: oklch(0.15 0.03 260);
-  --popover-foreground: oklch(0.95 0.01 260);
-
-  /* Primary: Electric Violet */
-  --primary: oklch(0.65 0.22 270);
-  --primary-foreground: oklch(0.12 0.03 260);
-
-  --secondary: oklch(0.2 0.03 260);
-  --secondary-foreground: oklch(0.95 0.01 260);
-
-  --muted: oklch(0.2 0.03 260);
-  --muted-foreground: oklch(0.65 0.02 260);
-
-  --accent: oklch(0.2 0.04 260);
-  --accent-foreground: oklch(0.95 0.01 260);
-
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.95 0.01 260);
-
-  --border: oklch(0.22 0.03 260);
-  --input: oklch(0.22 0.03 260);
-  --ring: oklch(0.65 0.22 270);
-
-  --sidebar: oklch(0.12 0.03 260);
-  --sidebar-foreground: oklch(0.95 0.01 260);
-  --sidebar-primary: oklch(0.65 0.22 270);
-  --sidebar-primary-foreground: oklch(0.12 0.03 260);
-  --sidebar-accent: oklch(0.2 0.04 260);
-  --sidebar-accent-foreground: oklch(0.95 0.01 260);
-  --sidebar-border: oklch(0.22 0.03 260);
-  --sidebar-ring: oklch(0.65 0.22 270);
-}
-
-@theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -112,31 +29,164 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: calc(var(--radius) - 1px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --background: #F0F2F5;
+  --foreground: #121212;
+  --card: #FFFFFF;
+  --card-foreground: #121212;
+  --popover: #FFFFFF;
+  --popover-foreground: #121212;
+  --primary: #00E676;
+  --primary-foreground: #121212;
+  --secondary: #F4F6F8;
+  --secondary-foreground: #121212;
+  --muted: #F4F6F8;
+  --muted-foreground: #2C3E50;
+  --accent: #00E676;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #F4F6F8;
+  --input: #F4F6F8;
+  --ring: #00E676;
+  --radius: 0.25rem;
+}
+
+.dark {
+  --background: #121212;
+  --foreground: #FFFFFF;
+  --card: #1E1E1E;
+  --card-foreground: #FFFFFF;
+  --popover: #1E1E1E;
+  --popover-foreground: #FFFFFF;
+  --primary: #00E676;
+  --primary-foreground: #121212;
+  --secondary: #1E1E1E;
+  --secondary-foreground: #FFFFFF;
+  --muted: #1E1E1E;
+  --muted-foreground: #9CA3AF;
+  --accent: #00E676;
+  --accent-foreground: #121212;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #262626;
+  --input: #262626;
+  --ring: #00E676;
+}
+
+/* Typography System */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+/* Technical elements use monospace */
+.font-mono,
+code,
+pre {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Vault Floating Cards */
+.vault-card {
+  background: rgb(var(--card));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.vault-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Vault Buttons */
+.vault-button {
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.vault-button:hover {
+  transform: translateX(2px);
+}
+
+/* Input underline style */
+.vault-input {
+  border: none;
+  border-bottom: 2px solid rgb(var(--vault-light-grey));
+  border-radius: 0;
+  transition: border-color 0.2s ease;
+}
+
+.vault-input:focus {
+  border-bottom-color: rgb(var(--vault-mint));
+  outline: none;
+}
+
+/* Cyber Mint glow effect */
+.vault-glow {
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}
+
+/* Skeleton loader with pulse */
+@keyframes vault-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.vault-skeleton {
+  animation: vault-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: linear-gradient(90deg, rgb(var(--muted)) 0%, rgb(var(--muted-foreground) / 0.1) 50%, rgb(var(--muted)) 100%);
+  background-size: 200% 100%;
+  animation: vault-skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes vault-skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-
   body {
-    @apply bg-background text-foreground;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }
